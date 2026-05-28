@@ -36,3 +36,17 @@ pub async fn get_account(executor: impl PgExecutor<'_>, id: Uuid) -> sqlx::Resul
     .fetch_one(executor)
     .await
 }
+
+pub async fn get_account_by_email(executor: impl PgExecutor<'_>, email: &str) -> sqlx::Result<Account> {
+    sqlx::query_as!(
+        Account,
+        r#"
+            SELECT email, password, name, role as "role: _", is_active
+            FROM accounts
+            WHERE email = $1
+        "#,
+        email
+    )
+    .fetch_one(executor)
+    .await
+}
