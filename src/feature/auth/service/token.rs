@@ -4,6 +4,11 @@ use uuid::Uuid;
 
 use crate::feature::auth::model::Claims;
 
+pub struct CompletedTokenService {
+    pub access_token_service: TokenService,
+    pub refresh_token_service: TokenService,
+}
+
 pub struct TokenService {
     encoding_key: EncodingKey,
     decoding_key: DecodingKey,
