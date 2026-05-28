@@ -1,12 +1,11 @@
-use uuid::Uuid;
-
+#[derive(sqlx::Type)]
+#[sqlx(rename_all = "snake_case")]
 pub enum Role {
     Admin,
     Member,
 }
 
 pub struct Account {
-    pub id: Uuid,
     pub email: String,
     pub password: String,
     pub name: String,
