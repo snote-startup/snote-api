@@ -1,18 +1,25 @@
 use std::{sync::LazyLock, time::Duration};
 
 use serde::Deserialize;
+use serde_with::serde_as;
 
-#[allow(unused)]
 #[derive(Debug, Deserialize)]
+#[serde_as]
 pub struct Config {
     #[serde(default = "default_port")]
     pub port: u16,
     pub database_url: String,
 
+    #[serde(default = "default_bcrypt_cost")]
+    pub bcrypt_cost: u32,
+    #[serde(default = "default_bcrypt_salt")]
+    #[serde_as(as = "Bytes")]
+    pub bcrypt_salt: [u8; 16],
+
     #[serde(default = "default_jwt_secret")]
     pub jwt_secret: String,
     #[serde(default = "default_jwt_expired_in")]
-    pub jwt_expired_in: usize,
+    pub jwt_expired_in: u64,
     #[serde(default = "default_jwt_secret")]
     pub jwt_refresh_secret: String,
     #[serde(default = "default_jwt_refresh_expired_in")]
@@ -35,6 +42,14 @@ pub static CONFIG: LazyLock<Config> = LazyLock::new(|| {
 
 const fn default_port() -> u16 {
     3000
+}
+
+const fn default_bcrypt_cost() -> u32 {
+    10
+}
+
+const fn default_bcrypt_salt() -> [u8; 16] {
+    [0; 16]
 }
 
 fn default_jwt_secret() -> String {
