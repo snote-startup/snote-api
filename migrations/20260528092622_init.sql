@@ -29,6 +29,6 @@ CREATE TABLE IF NOT EXISTS transcripts(
     project_id uuid NOT NULL REFERENCES projects(id),
     speaker text NOT NULL,
     content text NOT NULL,
-    start int NOT NULL,
-    end int NOT NULL,
+    start_time int NOT NULL,
+    end_time int NOT NULL
 );
