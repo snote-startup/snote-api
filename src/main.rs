@@ -2,6 +2,7 @@ mod config;
 mod feature;
 mod transport;
 
-fn main() {
-    println!("Hello, world!");
+#[tokio::main]
+async fn main() -> color_eyre::Result<()> {
+    transport::http::run().await
 }

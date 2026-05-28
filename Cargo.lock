@@ -1346,6 +1346,7 @@ dependencies = [
  "serde",
  "sqlx",
  "tokio",
+ "tracing",
  "utoipa",
 ]
 
