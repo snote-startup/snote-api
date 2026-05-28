@@ -16,7 +16,7 @@ pub struct Config {
     #[serde(default = "default_jwt_secret")]
     pub jwt_refresh_secret: String,
     #[serde(default = "default_jwt_refresh_expired_in")]
-    pub jwt_refresh_expired_in: usize,
+    pub jwt_refresh_expired_in: u64,
 }
 
 #[allow(unused)]
@@ -41,10 +41,10 @@ fn default_jwt_secret() -> String {
     "secret".to_string()
 }
 
-const fn default_jwt_expired_in() -> usize {
-    Duration::from_mins(5).as_secs() as usize
+const fn default_jwt_expired_in() -> u64 {
+    Duration::from_mins(5).as_secs()
 }
 
-const fn default_jwt_refresh_expired_in() -> usize {
-    Duration::from_hours(7 * 24).as_secs() as usize
+const fn default_jwt_refresh_expired_in() -> u64 {
+    Duration::from_hours(7 * 24).as_secs()
 }
