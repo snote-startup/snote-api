@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 #[derive(sqlx::Type)]
 #[sqlx(rename_all = "snake_case")]
 pub enum Role {
@@ -17,4 +19,9 @@ pub struct MinimalAccount {
     pub email: String,
     pub name: String,
     pub role: Role,
+}
+
+pub struct Claims {
+    pub sub: Uuid,
+    pub exp: u64,
 }
