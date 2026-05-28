@@ -1,10 +1,8 @@
 use std::{sync::LazyLock, time::Duration};
 
 use serde::Deserialize;
-use serde_with::serde_as;
 
 #[derive(Debug, Deserialize)]
-#[serde_as]
 pub struct Config {
     #[serde(default = "default_port")]
     pub port: u16,
@@ -12,9 +10,6 @@ pub struct Config {
 
     #[serde(default = "default_bcrypt_cost")]
     pub bcrypt_cost: u32,
-    #[serde(default = "default_bcrypt_salt")]
-    #[serde_as(as = "Bytes")]
-    pub bcrypt_salt: [u8; 16],
 
     #[serde(default = "default_jwt_secret")]
     pub jwt_secret: String,
@@ -46,10 +41,6 @@ const fn default_port() -> u16 {
 
 const fn default_bcrypt_cost() -> u32 {
     10
-}
-
-const fn default_bcrypt_salt() -> [u8; 16] {
-    [0; 16]
 }
 
 fn default_jwt_secret() -> String {
