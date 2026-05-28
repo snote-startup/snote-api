@@ -5,6 +5,7 @@ use serde::Deserialize;
 #[allow(unused)]
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    #[serde(default = "default_port")]
     pub port: u16,
     pub database_url: String,
 }
@@ -22,3 +23,7 @@ pub static CONFIG: LazyLock<Config> = LazyLock::new(|| {
         .try_deserialize()
         .unwrap()
 });
+
+const fn default_port() -> u16 {
+    3000
+}
