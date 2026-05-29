@@ -1,23 +1,28 @@
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::feature::auth::model::Claims;
-
-pub struct CompletedTokenService {
-    pub access_token_service: TokenService,
-    pub refresh_token_service: TokenService,
+pub struct CompletedTokenUtil {
+    pub access: TokenUtil,
+    pub refresh: TokenUtil,
 }
 
-pub struct TokenService {
+#[derive(Serialize, Deserialize)]
+pub struct Claims {
+    pub sub: Uuid,
+    pub exp: u64,
+}
+
+pub struct TokenUtil {
     encoding_key: EncodingKey,
     decoding_key: DecodingKey,
     expired_in: u64,
 }
 
-impl TokenService {
-    pub fn new(secret: &str, expired_in: u64) -> TokenService {
-        TokenService {
+impl TokenUtil {
+    pub fn new(secret: &str, expired_in: u64) -> TokenUtil {
+        TokenUtil {
             encoding_key: EncodingKey::from_secret(secret.as_bytes()),
             decoding_key: DecodingKey::from_secret(secret.as_bytes()),
             expired_in,
