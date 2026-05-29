@@ -7,7 +7,7 @@ use utoipa::{
 };
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::transport::http::{auth, error::ApiError, health, state::ApiState};
+use crate::transport::http::{error::ApiError, route::*, state::ApiState};
 
 struct SecurityAddon;
 

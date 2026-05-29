@@ -9,8 +9,8 @@ use axum_extra::extract::{
 use crate::{
     feature::auth,
     transport::http::{
-        auth::{AUTH_ENDPOINT, REFRESH_COOKIE},
         error::{ApiError, ApiResult, OptionExt, ResultExt as _},
+        route::auth::{AUTH_ENDPOINT, REFRESH_COOKIE},
         state::ApiState,
     },
 };

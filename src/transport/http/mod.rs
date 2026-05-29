@@ -1,7 +1,6 @@
-mod auth;
 mod doc;
 mod error;
-mod health;
+mod route;
 mod state;
 
 use std::{net::SocketAddr, sync::Arc};
@@ -13,8 +12,8 @@ use crate::{config::CONFIG, transport::http::state::ApiState};
 
 fn build(state: Arc<ApiState>) -> Router {
     Router::new()
-        .nest("/health", health::build())
-        .nest("/auth", auth::build())
+        .nest("/health", route::health::build())
+        .nest("/auth", route::auth::build())
         .merge(doc::build())
         .with_state(state)
 }

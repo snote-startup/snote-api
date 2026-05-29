@@ -11,7 +11,7 @@ use utoipa::ToSchema;
 use crate::{
     feature::auth,
     transport::http::{
-        auth::{AUTH_ENDPOINT, REFRESH_COOKIE},
+        route::auth::{AUTH_ENDPOINT, REFRESH_COOKIE},
         error::{ApiError, ApiResult, ResultExt},
         state::ApiState,
     },
