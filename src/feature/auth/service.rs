@@ -13,7 +13,7 @@ use crate::{
 
 pub async fn register(
     database: &PgPool,
-    token_util: CompletedTokenUtil,
+    token_util: &CompletedTokenUtil,
     email: &str,
     password: &str,
     name: &str,
@@ -25,14 +25,14 @@ pub async fn register(
     let refresh_token = token_util.refresh.encode(id)?;
 
     Ok(TokenPair {
-        access_token,
-        refresh_token,
+        access: access_token,
+        refresh: refresh_token,
     })
 }
 
 pub async fn login(
     database: &PgPool,
-    token_util: CompletedTokenUtil,
+    token_util: &CompletedTokenUtil,
     email: &str,
     password: &str,
 ) -> color_eyre::Result<TokenPair> {
@@ -46,14 +46,14 @@ pub async fn login(
     let refresh_token = token_util.refresh.encode(id)?;
 
     Ok(TokenPair {
-        access_token,
-        refresh_token,
+        access: access_token,
+        refresh: refresh_token,
     })
 }
 
 pub async fn me(
     database: &PgPool,
-    token_util: CompletedTokenUtil,
+    token_util: &CompletedTokenUtil,
     access_token: &str,
 ) -> color_eyre::Result<MinimalAccount> {
     let id = token_util.access.decode(access_token)?;
@@ -66,7 +66,7 @@ pub async fn me(
     })
 }
 
-pub fn refresh(token_util: CompletedTokenUtil, refresh_token: &str) -> color_eyre::Result<String> {
+pub fn refresh(token_util: &CompletedTokenUtil, refresh_token: &str) -> color_eyre::Result<String> {
     let id = token_util.refresh.decode(refresh_token)?;
     token_util.access.encode(id)
 }

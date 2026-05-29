@@ -29,6 +29,6 @@ pub struct MinimalAccount {
 }
 
 pub struct TokenPair {
-    pub access_token: String,
-    pub refresh_token: String,
+    pub access: String,
+    pub refresh: String,
 }
