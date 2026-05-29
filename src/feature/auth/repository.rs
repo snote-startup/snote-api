@@ -27,9 +27,9 @@ pub async fn get_account(executor: impl PgExecutor<'_>, id: Uuid) -> sqlx::Resul
     sqlx::query_as!(
         Account,
         r#"
-            SELECT id, email, password, name, role as "role: _", is_active
+            SELECT id, email, password, name, role as "role: _"
             FROM accounts
-            WHERE id = $1
+            WHERE id = $1 AND is_active = true
         "#,
         id
     )
@@ -44,9 +44,9 @@ pub async fn get_account_by_email(
     sqlx::query_as!(
         Account,
         r#"
-            SELECT id, email, password, name, role as "role: _", is_active
+            SELECT id, email, password, name, role as "role: _"
             FROM accounts
-            WHERE email = $1
+            WHERE email = $1 AND is_active = true
         "#,
         email
     )

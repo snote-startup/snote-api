@@ -1,7 +1,8 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(sqlx::Type)]
+#[derive(Serialize, sqlx::Type, ToSchema)]
 #[sqlx(rename_all = "snake_case")]
 pub enum Role {
     Admin,
@@ -14,14 +15,9 @@ pub struct Account {
     pub password: String,
     pub name: String,
     pub role: Role,
-    pub is_active: bool,
 }
 
-pub struct AccountCredential {
-    pub id: Uuid,
-    pub password: String,
-}
-
+#[derive(Serialize, ToSchema)]
 pub struct MinimalAccount {
     pub email: String,
     pub name: String,
