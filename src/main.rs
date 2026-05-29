@@ -6,6 +6,7 @@ use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitEx
 mod config;
 mod feature;
 mod transport;
+mod util;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {

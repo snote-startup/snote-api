@@ -9,11 +9,17 @@ pub enum Role {
 }
 
 pub struct Account {
+    pub id: Uuid,
     pub email: String,
     pub password: String,
     pub name: String,
     pub role: Role,
     pub is_active: bool,
+}
+
+pub struct AccountCredential {
+    pub id: Uuid,
+    pub password: String,
 }
 
 pub struct MinimalAccount {
@@ -22,8 +28,7 @@ pub struct MinimalAccount {
     pub role: Role,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct Claims {
-    pub sub: Uuid,
-    pub exp: u64,
+pub struct TokenPair {
+    pub access_token: String,
+    pub refresh_token: String,
 }
