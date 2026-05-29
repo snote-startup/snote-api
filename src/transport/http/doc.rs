@@ -7,9 +7,7 @@ use utoipa::{
 };
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::transport::http::{error::ApiError, state::ApiState};
-
-use super::health;
+use crate::transport::http::{auth, error::ApiError, health, state::ApiState};
 
 struct SecurityAddon;
 
@@ -32,7 +30,12 @@ impl Modify for SecurityAddon {
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        health::handler::health
+        health::handler::health,
+
+        auth::handler::register,
+        auth::handler::login,
+        auth::handler::refresh,
+        auth::handler::me,
     ),
     components(schemas(
         ApiError,

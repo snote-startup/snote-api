@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 #[derive(Serialize, sqlx::Type, ToSchema)]
 #[sqlx(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum Role {
     Admin,
     Member,

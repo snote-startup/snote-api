@@ -14,6 +14,7 @@ use crate::{config::CONFIG, transport::http::state::ApiState};
 fn build(state: Arc<ApiState>) -> Router {
     Router::new()
         .nest("/health", health::build())
+        .nest("/auth", auth::build())
         .merge(doc::build())
         .with_state(state)
 }

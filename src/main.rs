@@ -21,7 +21,7 @@ async fn main() -> color_eyre::Result<()> {
     tracing_subscriber::registry()
         .with(
             EnvFilter::builder()
-                .with_default_directive(LevelFilter::INFO.into())
+                .with_default_directive(LevelFilter::DEBUG.into())
                 .from_env_lossy(),
         )
         .with(tracing_subscriber::fmt::layer().with_thread_ids(false))
