@@ -66,7 +66,14 @@ pub async fn me(
     })
 }
 
-pub fn refresh(token_util: &CompletedTokenUtil, refresh_token: &str) -> color_eyre::Result<String> {
+pub fn refresh(
+    token_util: &CompletedTokenUtil,
+    refresh_token: &str,
+) -> color_eyre::Result<TokenPair> {
     let id = token_util.refresh.decode(refresh_token)?;
-    token_util.access.encode(id)
+
+    Ok(TokenPair {
+        refresh: token_util.refresh.encode(id)?,
+        access: token_util.access.encode(id)?,
+    })
 }
