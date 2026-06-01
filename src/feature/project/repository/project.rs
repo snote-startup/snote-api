@@ -74,7 +74,8 @@ pub async fn update_project(
             SET title = COALESCE($3, title),
                 description = COALESCE($4, description),
                 audio_url = COALESCE($5, audio_url),
-                transcript_ai_id = COALESCE($6, transcript_ai_id)
+                transcript_ai_id = COALESCE($6, transcript_ai_id),
+                updated_at = now()
             WHERE id = $1 AND account_id = $2
         "#,
         id,
