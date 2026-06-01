@@ -2,14 +2,14 @@ use uuid::Uuid;
 
 pub struct Transcript {
     pub speaker: String,
-    pub content: String,
-    pub start_time: u32,
-    pub end_time: u32,
+    pub text: String,
+    pub start: u32,
+    pub end: u32,
 }
 
 pub struct Project {
     pub id: Uuid,
     pub title: String,
     pub description: Option<String>,
-    pub audio_url: Option<String>
+    pub audio_url: Option<String>,
 }
