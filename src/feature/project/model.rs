@@ -1,8 +1,14 @@
-use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
 pub struct Transcript {
     pub speaker: String,
     pub content: String,
-    pub start_time: DateTime<Utc>,
-    pub end_time: DateTime<Utc>,
+    pub start_time: u32,
+    pub end_time: u32,
+}
+
+pub struct Project {
+    pub id: Uuid,
+    pub title: String,
+    pub description: Option<String>,
 }
