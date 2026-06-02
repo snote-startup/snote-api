@@ -3,8 +3,8 @@ use uuid::Uuid;
 pub struct Transcript {
     pub speaker: String,
     pub text: String,
-    pub start: u32,
-    pub end: u32,
+    pub start: i32,
+    pub end: i32,
 }
 
 pub struct Project {
