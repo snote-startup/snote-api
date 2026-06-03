@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+aws-config = { version = "1.8.18", features = ["behavior-version-latest"] }
+aws-sdk-s3 = { version = "1.135.0", features = ["behavior-version-latest"] }
 axum = { version = "0.8.9", features = ["macros"] }
 axum-extra = { version = "0.12.6", features = ["typed-header", "cookie"] }
 bcrypt = "0.19.1"
