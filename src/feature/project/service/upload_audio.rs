@@ -2,7 +2,10 @@ use aws_sdk_s3::primitives::ByteStream;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{feature::project::repository, util::storage};
+use crate::{
+    feature::project::{external::assembly_ai, repository},
+    util::storage,
+};
 
 pub async fn upload_audio(
     database: &PgPool,
@@ -14,8 +17,25 @@ pub async fn upload_audio(
     let key = generate_key(id);
     let audio_url = storage::upload(s3, key, content).await?;
 
-    repository::update_project(database, id, account_id, None, None, Some(&audio_url), None)
-        .await?;
+    let raw = assembly_ai::transcript::create(&audio_url).await?;
+    let transcript_ai_id = raw.id;
+    let transcripts = raw.transcripts;
+
+    let mut transaction = database.begin().await?;
+
+    repository::update_project(
+        &mut *transaction,
+        id,
+        account_id,
+        None,
+        None,
+        Some(&audio_url),
+        Some(&transcript_ai_id),
+    )
+    .await?;
+    repository::create_transcripts(&mut *transaction, id, &transcripts).await?;
+
+    transaction.commit().await?;
 
     todo!()
 }

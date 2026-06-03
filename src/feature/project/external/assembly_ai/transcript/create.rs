@@ -10,9 +10,9 @@ use crate::{
 };
 
 #[derive(Serialize)]
-struct Request {
-    pub audio_url: String,
-    pub speech_models: Vec<SpeechModel>,
+struct Request<'a> {
+    pub audio_url: &'a str,
+    pub speech_models: &'a [SpeechModel],
     pub speaker_labels: bool,
     pub language_detections: bool,
 }
@@ -24,12 +24,12 @@ pub struct Response {
     pub transcripts: Vec<Transcript>,
 }
 
-pub async fn create(audio_url: String) -> color_eyre::Result<Response> {
+pub async fn create(audio_url: &str) -> color_eyre::Result<Response> {
     let url = format!("{}/v2/transcript", API_URL);
 
     let req = Request {
         audio_url,
-        speech_models: vec![SpeechModel::Universal3Pro, SpeechModel::Universal2],
+        speech_models: &[SpeechModel::Universal3Pro, SpeechModel::Universal2],
         speaker_labels: true,
         language_detections: true,
     };
