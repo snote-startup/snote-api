@@ -1,8 +1,12 @@
+use http::header::AUTHORIZATION;
 use serde::{Deserialize, Serialize};
 
-use crate::feature::project::{
-    external::assembly_ai::{API_URL, SpeechModel},
-    model::Transcript,
+use crate::{
+    config::CONFIG,
+    feature::project::{
+        external::assembly_ai::{API_URL, SpeechModel},
+        model::Transcript,
+    },
 };
 
 #[derive(Serialize)]
@@ -32,6 +36,7 @@ pub async fn create(audio_url: String) -> color_eyre::Result<Response> {
 
     let resp: Response = reqwest::Client::new()
         .post(url)
+        .header(AUTHORIZATION, &CONFIG.assembly_ai_api_key)
         .json(&req)
         .send()
         .await?

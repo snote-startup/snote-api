@@ -3070,6 +3070,7 @@ dependencies = [
  "chrono",
  "color-eyre",
  "config",
+ "http 1.4.1",
  "jsonwebtoken",
  "reqwest",
  "serde",
