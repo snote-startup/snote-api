@@ -40,20 +40,15 @@ pub async fn get_projects_by_account(
     .await
 }
 
-pub async fn get_project(
-    executor: impl PgExecutor<'_>,
-    id: Uuid,
-    account_id: Uuid,
-) -> sqlx::Result<Option<Project>> {
+pub async fn get_project(executor: impl PgExecutor<'_>, id: Uuid) -> sqlx::Result<Option<Project>> {
     sqlx::query_as!(
         Project,
         r#"
             SELECT id, title, description, audio_url
             FROM projects
-            WHERE id = $1 AND account_id = $2
+            WHERE id = $1
         "#,
         id,
-        account_id
     )
     .fetch_optional(executor)
     .await
