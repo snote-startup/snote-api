@@ -9,12 +9,17 @@ use crate::{
 
 pub struct ApiState {
     pub database: PgPool,
+    pub s3_client: aws_sdk_s3::Client,
     pub token_util: CompletedTokenUtil,
 }
 
 impl ApiState {
     pub async fn new() -> color_eyre::Result<Arc<ApiState>> {
         let database = PgPool::connect(&CONFIG.database_url).await?;
+
+        let s3_config = aws_config::load_from_env().await;
+        let s3_client = aws_sdk_s3::Client::new(&s3_config);
+
         let token_util = CompletedTokenUtil {
             access: TokenUtil::new(&CONFIG.jwt_secret, CONFIG.jwt_expired_in),
             refresh: TokenUtil::new(&CONFIG.jwt_refresh_secret, CONFIG.jwt_refresh_expired_in),
@@ -22,6 +27,7 @@ impl ApiState {
 
         Ok(Arc::new(ApiState {
             database,
+            s3_client,
             token_util,
         }))
     }
