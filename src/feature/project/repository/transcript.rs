@@ -11,8 +11,8 @@ pub async fn create_transcripts(
     let project_ids = vec![project_id; transcripts.len()];
     let speakers: Vec<_> = transcripts.iter().map(|x| x.speaker.clone()).collect();
     let texts: Vec<_> = transcripts.iter().map(|x| x.text.clone()).collect();
-    let starts: Vec<_> = transcripts.iter().map(|x| x.start as i32).collect();
-    let ends: Vec<_> = transcripts.iter().map(|x| x.end as i32).collect();
+    let starts: Vec<_> = transcripts.iter().map(|x| x.start).collect();
+    let ends: Vec<_> = transcripts.iter().map(|x| x.end).collect();
 
     sqlx::query!(
         r#"
