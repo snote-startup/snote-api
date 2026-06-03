@@ -19,6 +19,9 @@ pub struct Config {
     pub jwt_refresh_secret: String,
     #[serde(default = "default_jwt_refresh_expired_in")]
     pub jwt_refresh_expired_in: u64,
+
+    pub s3_bucket: String,
+    pub s3_endpoint: String,
 }
 
 #[allow(unused)]
