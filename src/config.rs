@@ -22,6 +22,8 @@ pub struct Config {
 
     pub s3_bucket: String,
     pub s3_endpoint: String,
+
+    pub assembly_ai_api_key: String,
 }
 
 #[allow(unused)]
