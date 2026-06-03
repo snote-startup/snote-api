@@ -1,5 +1,7 @@
+use serde::Deserialize;
 use uuid::Uuid;
 
+#[derive(Deserialize)]
 pub struct Transcript {
     pub speaker: String,
     pub text: String,
