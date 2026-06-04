@@ -8,6 +8,9 @@ pub struct Config {
     pub port: u16,
     pub database_url: String,
 
+    #[serde(default = "default_origins")]
+    pub origins: String,
+
     #[serde(default = "default_bcrypt_cost")]
     pub bcrypt_cost: u32,
 
@@ -42,6 +45,10 @@ pub static CONFIG: LazyLock<Config> = LazyLock::new(|| {
 
 const fn default_port() -> u16 {
     3000
+}
+
+fn default_origins() -> String {
+    "http://localhost:3000".to_string()
 }
 
 const fn default_bcrypt_cost() -> u32 {
