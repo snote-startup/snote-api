@@ -1,22 +1,22 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::feature::project::model::Transcript;
+use crate::feature::project::model::TranscriptSegment;
 
-pub async fn create_transcripts(
+pub async fn create_transcript_segments(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
-    transcripts: &[Transcript],
+    segments: &[TranscriptSegment],
 ) -> sqlx::Result<()> {
-    let project_ids = vec![project_id; transcripts.len()];
-    let speakers: Vec<_> = transcripts.iter().map(|x| x.speaker.clone()).collect();
-    let texts: Vec<_> = transcripts.iter().map(|x| x.text.clone()).collect();
-    let starts: Vec<_> = transcripts.iter().map(|x| x.start).collect();
-    let ends: Vec<_> = transcripts.iter().map(|x| x.end).collect();
+    let project_ids = vec![project_id; segments.len()];
+    let speakers: Vec<_> = segments.iter().map(|x| x.speaker.clone()).collect();
+    let texts: Vec<_> = segments.iter().map(|x| x.text.clone()).collect();
+    let starts: Vec<_> = segments.iter().map(|x| x.start).collect();
+    let ends: Vec<_> = segments.iter().map(|x| x.end).collect();
 
     sqlx::query!(
         r#"
-            INSERT INTO transcripts(project_id, speaker, content, start_time, end_time)
+            INSERT INTO transcript_segments(project_id, speaker, content, start_time, end_time)
             SELECT * FROM UNNEST(
                 $1::uuid[],
                 $2::text[],
@@ -41,18 +41,18 @@ pub async fn create_transcripts(
 pub async fn create_transcript(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
-    transcript: &Transcript,
+    segment: &TranscriptSegment,
 ) -> sqlx::Result<()> {
     sqlx::query!(
         r#"
-            INSERT INTO transcripts(project_id, speaker, content, start_time, end_time)
+            INSERT INTO transcript_segments(project_id, speaker, content, start_time, end_time)
             VALUES($1, $2, $3, $4, $5)
         "#,
         project_id,
-        transcript.speaker,
-        transcript.text,
-        transcript.start,
-        transcript.end,
+        segment.speaker,
+        segment.text,
+        segment.start,
+        segment.end,
     )
     .execute(executor)
     .await?;
@@ -60,15 +60,15 @@ pub async fn create_transcript(
     Ok(())
 }
 
-pub async fn get_transcripts(
+pub async fn get_transcript(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
-) -> sqlx::Result<Vec<Transcript>> {
+) -> sqlx::Result<Vec<TranscriptSegment>> {
     sqlx::query_as!(
-        Transcript,
+        TranscriptSegment,
         r#"
             SELECT speaker, content as "text:_", start_time as "start:_", end_time as "end:_"
-            FROM transcripts
+            FROM transcript_segments
             WHERE project_id = $1
             ORDER BY start_time, end_time
         "#,

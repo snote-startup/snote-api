@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO transcript_segments(project_id, speaker, content, start_time, end_time)\n            SELECT * FROM UNNEST(\n                $1::uuid[],\n                $2::text[],\n                $3::text[],\n                $4::int[],\n                $5::int[]\n            )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "TextArray",
+        "TextArray",
+        "Int4Array",
+        "Int4Array"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6b57848f4e9a94540cca06df191138028d83051b8877ab71f389c81689b6c7b4"
+}
