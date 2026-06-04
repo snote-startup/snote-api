@@ -18,13 +18,15 @@ pub struct AccountID(pub Uuid);
 impl FromRequestParts<Arc<ApiState>> for AccountID {
     type Rejection = ApiError;
 
+    #[tracing::instrument(err(Debug), skip(state))]
     async fn from_request_parts(
         parts: &mut http::request::Parts,
         state: &Arc<ApiState>,
     ) -> Result<Self, Self::Rejection> {
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
-            .await?;
+            .await
+            .with_context(StatusCode::UNAUTHORIZED, "Missing access token")?;
         let access_token = bearer.token();
         let id = state
             .token_util
