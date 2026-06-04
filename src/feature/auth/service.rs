@@ -11,6 +11,7 @@ use crate::{
     util::token::CompletedTokenUtil,
 };
 
+#[tracing::instrument(err(Debug), skip(database, token_util))]
 pub async fn register(
     database: &PgPool,
     token_util: &CompletedTokenUtil,
@@ -30,6 +31,7 @@ pub async fn register(
     })
 }
 
+#[tracing::instrument(err(Debug), skip(database, token_util))]
 pub async fn login(
     database: &PgPool,
     token_util: &CompletedTokenUtil,
@@ -51,6 +53,7 @@ pub async fn login(
     })
 }
 
+#[tracing::instrument(err(Debug), skip(database, token_util))]
 pub async fn me(
     database: &PgPool,
     token_util: &CompletedTokenUtil,
@@ -66,6 +69,7 @@ pub async fn me(
     })
 }
 
+#[tracing::instrument(err(Debug), skip(token_util))]
 pub fn refresh(
     token_util: &CompletedTokenUtil,
     refresh_token: &str,

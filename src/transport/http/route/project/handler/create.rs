@@ -22,11 +22,12 @@ pub struct Request {
     pub description: Option<String>,
 }
 
+#[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     post,
     operation_id = "project::create",
     tag = "Project",
-    path = "/project/create",
+    path = "/project",
     request_body(content = Request),
 )]
 pub async fn create(

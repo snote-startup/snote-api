@@ -14,6 +14,7 @@ use crate::{
     },
 };
 
+#[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     get,
     operation_id = "auth::me",

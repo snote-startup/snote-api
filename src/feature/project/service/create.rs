@@ -3,6 +3,7 @@ use uuid::Uuid;
 
 use crate::feature::project::repository;
 
+#[tracing::instrument(err(Debug), skip(database))]
 pub async fn create(
     database: &PgPool,
     account_id: Uuid,

@@ -15,6 +15,7 @@ use crate::{
     },
 };
 
+#[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     post,
     operation_id = "auth::refresh",
