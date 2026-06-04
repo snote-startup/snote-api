@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS projects(
     updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS transcripts(
+CREATE TABLE IF NOT EXISTS transcript_segments(
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     project_id uuid NOT NULL REFERENCES projects(id),
     speaker text NOT NULL,

@@ -3,7 +3,7 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, ToSchema)]
-pub struct Transcript {
+pub struct TranscriptSegment {
     pub speaker: String,
     pub text: String,
     pub start: i32,

@@ -5,7 +5,7 @@ use crate::{
     config::CONFIG,
     feature::project::{
         external::assembly_ai::{API_URL, SpeechModel},
-        model::Transcript,
+        model::TranscriptSegment,
     },
 };
 
@@ -21,7 +21,7 @@ struct Request<'a> {
 pub struct Response {
     pub id: String,
     #[serde(rename = "utterances")]
-    pub transcripts: Vec<Transcript>,
+    pub transcript: Vec<TranscriptSegment>,
 }
 
 pub async fn create(audio_url: &str) -> color_eyre::Result<Response> {

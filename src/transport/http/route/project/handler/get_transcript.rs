@@ -8,7 +8,7 @@ use http::StatusCode;
 use uuid::Uuid;
 
 use crate::{
-    feature::project::{self, model::Transcript},
+    feature::project::{self, model::TranscriptSegment},
     transport::http::{
         error::{ApiError, ApiResult, ResultExt},
         state::ApiState,
@@ -18,7 +18,7 @@ use crate::{
 #[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     get,
-    operation_id = "project::get_transcripts",
+    operation_id = "project::get_transcript",
     tag = "Project",
     path = "/project/{id}/transcripts",
     params(
@@ -34,7 +34,7 @@ use crate::{
         (
             status = 200,
             description = "List all transcripts belonging to the project",
-            body = Vec<Transcript>
+            body = Vec<TranscriptSegment>
         ),
         (
             status = 400,
@@ -53,11 +53,11 @@ use crate::{
         )
     )
 )]
-pub async fn get_transcripts(
+pub async fn get_transcript(
     State(state): State<Arc<ApiState>>,
     Path(id): Path<Uuid>,
-) -> ApiResult<Json<Vec<Transcript>>> {
-    project::service::get_transcripts(&state.database, id)
+) -> ApiResult<Json<Vec<TranscriptSegment>>> {
+    project::service::get_transcript(&state.database, id)
         .await
         .map(Json)
         .with_context(StatusCode::BAD_REQUEST, "Project with given id not exist")

@@ -1,13 +1,13 @@
 mod create;
 mod get;
 mod get_by_account;
-mod get_transcripts;
+mod get_transcript;
 mod update;
 mod upload_audio;
 
 pub use create::*;
 pub use get::*;
 pub use get_by_account::*;
-pub use get_transcripts::*;
+pub use get_transcript::*;
 pub use update::*;
 pub use upload_audio::*;

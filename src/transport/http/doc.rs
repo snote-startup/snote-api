@@ -42,7 +42,7 @@ impl Modify for SecurityAddon {
         project::handler::get,
         project::handler::update,
         project::handler::upload_audio,
-        project::handler::get_transcripts,
+        project::handler::get_transcript,
     ),
     components(schemas(
         ApiError,

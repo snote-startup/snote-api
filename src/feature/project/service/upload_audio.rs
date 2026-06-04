@@ -19,7 +19,7 @@ pub async fn upload_audio(
 
     let raw = assembly_ai::transcript::create(&audio_url).await?;
     let transcript_ai_id = raw.id;
-    let transcripts = raw.transcripts;
+    let transcripts = raw.transcript;
 
     let mut transaction = database.begin().await?;
 
@@ -33,7 +33,7 @@ pub async fn upload_audio(
         Some(&transcript_ai_id),
     )
     .await?;
-    repository::create_transcripts(&mut *transaction, id, &transcripts).await?;
+    repository::create_transcript_segments(&mut *transaction, id, &transcripts).await?;
 
     transaction.commit().await?;
 
