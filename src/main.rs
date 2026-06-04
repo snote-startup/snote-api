@@ -1,6 +1,7 @@
 use std::env;
 
 use tracing::level_filters::LevelFilter;
+use tracing_error::ErrorLayer;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
@@ -19,6 +20,7 @@ async fn main() -> color_eyre::Result<()> {
     }
 
     tracing_subscriber::registry()
+        .with(ErrorLayer::default())
         .with(
             EnvFilter::builder()
                 .with_default_directive(LevelFilter::DEBUG.into())
