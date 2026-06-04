@@ -38,7 +38,8 @@ impl Modify for SecurityAddon {
         auth::handler::me,
 
         project::handler::create,
-        project::handler::get_by_account
+        project::handler::get_by_account,
+        project::handler::get,
     ),
     components(schemas(
         ApiError,

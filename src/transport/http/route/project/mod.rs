@@ -10,4 +10,5 @@ pub fn build() -> Router<Arc<ApiState>> {
     Router::new()
         .route("/", routing::post(handler::create))
         .route("/", routing::get(handler::get_by_account))
+        .route("/{id}", routing::get(handler::get))
 }
