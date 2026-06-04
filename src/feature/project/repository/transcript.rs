@@ -37,6 +37,7 @@ pub async fn create_transcripts(
     Ok(())
 }
 
+#[allow(unused)]
 pub async fn create_transcript(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
