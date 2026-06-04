@@ -1,2 +1,2 @@
 pub mod auth;
-mod project;
+pub mod project;

@@ -15,6 +15,7 @@ fn build(state: Arc<ApiState>) -> Router {
     Router::new()
         .nest("/health", route::health::build())
         .nest("/auth", route::auth::build())
+        .nest("/project", route::project::build())
         .merge(doc::build())
         .with_state(state)
 }
