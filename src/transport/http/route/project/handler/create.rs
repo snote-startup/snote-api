@@ -28,6 +28,7 @@ pub struct Request {
     operation_id = "project::create",
     tag = "Project",
     path = "/project",
+    security(("jwt_token" = [])),
     request_body(content = Request),
 )]
 pub async fn create(

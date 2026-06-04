@@ -1,4 +1,5 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 #[derive(Deserialize)]
@@ -9,6 +10,7 @@ pub struct Transcript {
     pub end: i32,
 }
 
+#[derive(Serialize, ToSchema)]
 pub struct Project {
     pub id: Uuid,
     pub title: String,
