@@ -1,5 +1,6 @@
 mod doc;
 mod error;
+mod extractor;
 mod route;
 mod state;
 
