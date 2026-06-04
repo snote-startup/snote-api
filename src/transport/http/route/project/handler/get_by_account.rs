@@ -4,7 +4,11 @@ use axum::{Json, extract::State};
 
 use crate::{
     feature::project::{self, model::Project},
-    transport::http::{error::{ApiError, ApiResult}, extractor::AccountID, state::ApiState},
+    transport::http::{
+        error::{ApiError, ApiResult},
+        extractor::AccountID,
+        state::ApiState,
+    },
 };
 
 #[tracing::instrument(err(Debug), skip(state))]
