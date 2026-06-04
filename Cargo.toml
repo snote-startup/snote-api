@@ -18,7 +18,7 @@ reqwest = { version = "0.13.4", features = ["json"] }
 serde = { version = "1.0.228", features = ["derive"] }
 sqlx = { version = "0.9.0", features = ["runtime-tokio", "postgres", "chrono", "uuid"] }
 tokio = { version = "1.52.3", features = ["full"] }
-tower-http = { version = "0.6.11", features = ["trace"] }
+tower-http = { version = "0.6.11", features = ["cors", "trace"] }
 tracing = "0.1.44"
 tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.23", features = ["fmt", "chrono", "env-filter"] }
