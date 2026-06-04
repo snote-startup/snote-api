@@ -4,7 +4,7 @@ use axum::{Json, extract::State};
 
 use crate::{
     feature::project::{self, model::Project},
-    transport::http::{error::ApiResult, extractor::AccountID, state::ApiState},
+    transport::http::{error::{ApiError, ApiResult}, extractor::AccountID, state::ApiState},
 };
 
 #[tracing::instrument(err(Debug), skip(state))]
@@ -14,6 +14,23 @@ use crate::{
     tag = "Project",
     path = "/project",
     security(("jwt_token" = [])),
+    responses(
+        (
+            status = 200,
+            description = "List all projects owned by the authenticated account",
+            body = Vec<Project>
+        ),
+        (
+            status = 401,
+            description = "Unauthorized",
+            body = ApiError
+        ),
+        (
+            status = 500,
+            description = "Internal server error",
+            body = ApiError
+        )
+    )
 )]
 pub async fn get_by_account(
     State(state): State<Arc<ApiState>>,

@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::{
     feature::project::{self, model::Transcript},
     transport::http::{
-        error::{ApiResult, ResultExt},
+        error::{ApiError, ApiResult, ResultExt},
         state::ApiState,
     },
 };
@@ -22,9 +22,36 @@ use crate::{
     tag = "Project",
     path = "/project/{id}/transcripts",
     params(
-        ("id" = Uuid, Path)
+        (
+            "id" = Uuid,
+            Path,
+            description = "Project id",
+            example = "550e8400-e29b-41d4-a716-446655440000"
+        )
     ),
     security(("jwt_token" = [])),
+    responses(
+        (
+            status = 200,
+            description = "List all transcripts belonging to the project",
+            body = Vec<Transcript>
+        ),
+        (
+            status = 400,
+            description = "Project with given id does not exist",
+            body = ApiError
+        ),
+        (
+            status = 401,
+            description = "Unauthorized",
+            body = ApiError
+        ),
+        (
+            status = 500,
+            description = "Internal server error",
+            body = ApiError
+        )
+    )
 )]
 pub async fn get_transcripts(
     State(state): State<Arc<ApiState>>,

@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::{
     feature::project::{self, model::Project},
     transport::http::{
-        error::{ApiResult, ResultExt},
+        error::{ApiError, ApiResult, Context, ResultExt},
         extractor::AccountID,
         state::ApiState,
     },
@@ -23,17 +23,49 @@ use crate::{
     tag = "Project",
     path = "/project/{id}",
     params(
-        ("id" = Uuid, Path)
+        (
+            "id" = Uuid,
+            Path,
+            description = "Project id",
+            example = "550e8400-e29b-41d4-a716-446655440000"
+        )
     ),
     security(("jwt_token" = [])),
+    responses(
+        (status = 200, body = Project),
+        (status = 404, description = "Project not found", body = ApiError),
+        (
+            status = 400,
+            description = "Invalid project id",
+            body = ApiError
+        ),
+        (
+            status = 401,
+            description = "Unauthorized",
+            body = ApiError
+        ),
+        (
+            status = 500,
+            description = "Internal server error",
+            body = ApiError
+        )
+    )
 )]
 pub async fn get(
     State(state): State<Arc<ApiState>>,
     _: AccountID,
     Path(id): Path<Uuid>,
-) -> ApiResult<Json<Option<Project>>> {
-    project::service::get(&state.database, id)
+) -> ApiResult<Json<Project>> {
+    match project::service::get(&state.database, id)
         .await
-        .map(Json)
-        .with_context(StatusCode::BAD_REQUEST, "Invalid project id")
+        .with_context(StatusCode::BAD_REQUEST, "Invalid project id")?
+    {
+        Some(project) => Ok(Json(project)),
+        None => Err(Context {
+            status: StatusCode::NOT_FOUND,
+            message: "Project not found".to_string(),
+            ..Default::default()
+        }
+        .into()),
+    }
 }
