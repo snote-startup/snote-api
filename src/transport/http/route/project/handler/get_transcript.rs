@@ -20,7 +20,7 @@ use crate::{
     get,
     operation_id = "project::get_transcript",
     tag = "Project",
-    path = "/project/{id}/transcripts",
+    path = "/project/{id}/transcript",
     params(
         (
             "id" = Uuid,
