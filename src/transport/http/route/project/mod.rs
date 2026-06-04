@@ -11,6 +11,7 @@ pub fn build() -> Router<Arc<ApiState>> {
         .route("/", routing::post(handler::create))
         .route("/", routing::get(handler::get_by_account))
         .route("/{id}", routing::get(handler::get))
-        .route("/{id}/transcripts", routing::get(handler::get_transcripts))
         .route("/{id}", routing::patch(handler::update))
+        .route("/{id}/upload", routing::post(handler::upload_audio))
+        .route("/{id}/transcripts", routing::get(handler::get_transcripts))
 }

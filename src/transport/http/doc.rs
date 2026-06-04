@@ -40,8 +40,9 @@ impl Modify for SecurityAddon {
         project::handler::create,
         project::handler::get_by_account,
         project::handler::get,
-        project::handler::get_transcripts,
         project::handler::update,
+        project::handler::upload_audio,
+        project::handler::get_transcripts,
     ),
     components(schemas(
         ApiError,
