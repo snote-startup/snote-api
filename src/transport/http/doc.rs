@@ -36,6 +36,13 @@ impl Modify for SecurityAddon {
         auth::handler::login,
         auth::handler::refresh,
         auth::handler::me,
+
+        project::handler::create,
+        project::handler::get_by_account,
+        project::handler::get,
+        project::handler::update,
+        project::handler::upload_audio,
+        project::handler::get_transcripts,
     ),
     components(schemas(
         ApiError,

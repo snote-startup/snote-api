@@ -30,6 +30,7 @@ pub struct Request {
     pub name: String,
 }
 
+#[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     post,
     operation_id = "auth::register",

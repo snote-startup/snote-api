@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE projects\n            SET title = COALESCE($3, title),\n                description = COALESCE($4, description),\n                audio_url = COALESCE($5, audio_url),\n                transcript_ai_id = COALESCE($6, transcript_ai_id),\n                updated_at = now()\n            WHERE id = $1 AND account_id = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9bcacb4377b0ccde5f72fe6f594a309d8fae0fcd2c2b6a086867d488c893217a"
+}

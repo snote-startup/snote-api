@@ -9,12 +9,13 @@ use axum_extra::extract::{
 use crate::{
     feature::auth,
     transport::http::{
-        error::{ApiError, ApiResult, OptionExt, ResultExt as _},
+        error::{ApiError, ApiResult, Context, ResultExt as _},
         route::auth::{AUTH_ENDPOINT, REFRESH_COOKIE},
         state::ApiState,
     },
 };
 
+#[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     post,
     operation_id = "auth::refresh",
@@ -48,10 +49,14 @@ pub async fn refresh(
     State(state): State<Arc<ApiState>>,
     jar: CookieJar,
 ) -> ApiResult<(CookieJar, String)> {
-    let cookie = jar
-        .get(REFRESH_COOKIE)
-        .cloned()
-        .with_context(StatusCode::UNAUTHORIZED, "Missing refresh token")?;
+    let Some(cookie) = jar.get(REFRESH_COOKIE).cloned() else {
+        return Err(Context {
+            status: StatusCode::UNAUTHORIZED,
+            message: "Missing refresh token".to_string(),
+            ..Default::default()
+        }
+        .into());
+    };
     let refresh_token = cookie.value();
     let token_pair = auth::service::refresh(&state.token_util, refresh_token)
         .with_context(StatusCode::UNAUTHORIZED, "Invalid refresh token")?;

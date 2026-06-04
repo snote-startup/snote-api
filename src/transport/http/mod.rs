@@ -1,5 +1,6 @@
 mod doc;
 mod error;
+mod extractor;
 mod route;
 mod state;
 
@@ -7,6 +8,7 @@ use std::{net::SocketAddr, sync::Arc};
 
 use axum::Router;
 use tokio::net::TcpListener;
+use tower_http::trace::TraceLayer;
 
 use crate::{config::CONFIG, transport::http::state::ApiState};
 
@@ -14,7 +16,9 @@ fn build(state: Arc<ApiState>) -> Router {
     Router::new()
         .nest("/health", route::health::build())
         .nest("/auth", route::auth::build())
+        .nest("/project", route::project::build())
         .merge(doc::build())
+        .layer(TraceLayer::new_for_http())
         .with_state(state)
 }
 
