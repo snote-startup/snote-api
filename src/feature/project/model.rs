@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Transcript {
     pub speaker: String,
     pub text: String,
