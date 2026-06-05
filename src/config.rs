@@ -24,7 +24,7 @@ pub struct Config {
     pub jwt_refresh_expired_in: u64,
 
     pub s3_bucket: String,
-    pub s3_endpoint: String,
+    pub aws_endpoint_url: String,
 
     pub assembly_ai_api_key: String,
 }
