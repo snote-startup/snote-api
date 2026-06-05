@@ -11,5 +11,8 @@ pub async fn upload(s3: &Client, key: String, content: ByteStream) -> color_eyre
         .body(content);
     req.send().await?;
 
-    Ok(format!("{}/{}", CONFIG.s3_endpoint, key))
+    Ok(format!(
+        "{}/{}/{}",
+        CONFIG.aws_endpoint_url, CONFIG.s3_bucket, key
+    ))
 }
