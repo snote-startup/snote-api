@@ -25,8 +25,9 @@ pub struct Request {
     pub audio: String,
 }
 
+#[tracing::instrument(err(Debug), skip(state, multipart))]
 #[utoipa::path(
-    patch,
+    post,
     operation_id = "project::upload_audio",
     tag = "Project",
     path = "/project/{id}/upload",
