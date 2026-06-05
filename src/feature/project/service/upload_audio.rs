@@ -7,6 +7,7 @@ use crate::{
     util::storage,
 };
 
+#[tracing::instrument(err(Debug), skip(database, s3, content))]
 pub async fn upload_audio(
     database: &PgPool,
     s3: &aws_sdk_s3::Client,
@@ -17,9 +18,8 @@ pub async fn upload_audio(
     let key = generate_key(id);
     let audio_url = storage::upload(s3, key, content).await?;
 
-    let raw = assembly_ai::transcript::create(&audio_url).await?;
-    let transcript_ai_id = raw.id;
-    let transcripts = raw.transcript;
+    let transcript_ai_id = assembly_ai::transcript::create(&audio_url).await?;
+    let transcript = assembly_ai::transcript::get(&transcript_ai_id).await?;
 
     let mut transaction = database.begin().await?;
 
@@ -33,11 +33,11 @@ pub async fn upload_audio(
         Some(&transcript_ai_id),
     )
     .await?;
-    repository::create_transcript_segments(&mut *transaction, id, &transcripts).await?;
+    repository::create_transcript_segments(&mut *transaction, id, &transcript).await?;
 
     transaction.commit().await?;
 
-    todo!()
+    Ok(())
 }
 
 fn generate_key(id: Uuid) -> String {
