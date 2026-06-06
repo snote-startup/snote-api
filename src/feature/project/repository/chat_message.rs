@@ -27,22 +27,22 @@ pub async fn create_chat_messages(
     Ok(())
 }
 
-pub async fn get_last_n_chat_messages(
+pub async fn get_chat_messages(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
-    n: usize,
+    limit: usize,
 ) -> sqlx::Result<Vec<ChatMessage>> {
     sqlx::query_as!(
         ChatMessage,
         r#"
-            SELECT role as "role: _", content, created_at
+            SELECT id, role as "role: _", content, created_at
             FROM chat_messages
             WHERE project_id = $1
             ORDER BY created_at DESC, id DESC
             LIMIT $2
         "#,
         project_id,
-        n as i64,
+        limit as i64,
     )
     .fetch_all(executor)
     .await
@@ -57,7 +57,7 @@ pub async fn get_paginated_chat_messages(
     sqlx::query_as!(
         ChatMessage,
         r#"
-            SELECT role as "role: _", content, created_at
+            SELECT id, role as "role: _", content, created_at
             FROM chat_messages
             WHERE project_id = $1 AND(
                 created_at < $2

@@ -30,11 +30,13 @@ pub enum ChatRole {
 }
 
 pub struct ChatMessage {
+    pub id: Uuid,
     pub role: ChatRole,
     pub content: String,
     pub created_at: DateTime<Utc>,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct ChatMessageCursor {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
