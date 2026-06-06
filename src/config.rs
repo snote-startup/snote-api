@@ -74,7 +74,7 @@ const fn default_jwt_refresh_expired_in() -> u64 {
 }
 
 const fn default_chat_context_history_size() -> usize {
-    5
+    10
 }
 
 const fn default_chat_context_transcript_size() -> usize {

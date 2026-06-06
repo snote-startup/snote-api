@@ -1,6 +1,6 @@
 CREATE TYPE chat_role AS ENUM (
     'user',
-    'assistance'
+    'assistant'
 );
 
 CREATE TABLE IF NOT EXISTS chat_messages(
@@ -12,4 +12,4 @@ CREATE TABLE IF NOT EXISTS chat_messages(
 );
 
 CREATE INDEX idx_chat_message_project_time
-ON chat_messages(project_id, created_at DESC);
+ON chat_messages(project_id DESC, created_at DESC);
