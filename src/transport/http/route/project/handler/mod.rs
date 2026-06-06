@@ -1,3 +1,4 @@
+mod chat;
 mod create;
 mod get;
 mod get_by_account;
@@ -6,6 +7,7 @@ mod get_transcript;
 mod update;
 mod upload_audio;
 
+pub use chat::*;
 pub use create::*;
 pub use get::*;
 pub use get_by_account::*;

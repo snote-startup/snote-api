@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use futures::{Stream, StreamExt, TryStreamExt};
 use pgvector::Vector;
-use rig_core::message::{AssistantContent, Message, UserContent};
+use rig_core::message::Message;
 use rig_core::{
     agent::MultiTurnStreamItem,
     client::{CompletionClient, EmbeddingsClient},
@@ -74,7 +74,7 @@ pub async fn chat(
     database: PgPool,
     id: Uuid,
     prompt: String,
-) -> color_eyre::Result<impl Stream<Item = String>> {
+) -> color_eyre::Result<impl Stream<Item = color_eyre::Result<String>>> {
     let client = gemini::Client::new(&CONFIG.gemini_api_key)?;
 
     let completed_prompt = build_completed_prompt(&database, &client, id, &prompt).await?;
@@ -117,7 +117,8 @@ pub async fn chat(
             match item {
                 Ok(MultiTurnStreamItem::StreamAssistantItem(StreamedAssistantContent::Text(
                     text,
-                ))) => Some(text.text),
+                ))) => Some(Ok(text.text)),
+                Err(error) => Some(Err(color_eyre::eyre::Error::from(error))),
                 _ => None,
             }
         });
