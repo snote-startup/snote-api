@@ -1,10 +1,21 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT speaker, content as \"text:_\", start_time as \"start:_\", end_time as \"end:_\"\n            FROM transcript_segments\n            WHERE project_id = $1\n            ORDER BY start_time, end_time\n        ",
+  "query": "\n            SELECT id, speaker, content as \"text:_\", start_time as \"start:_\", end_time as \"end:_\"\n            FROM transcript_segments\n            WHERE project_id = $1\n            ORDER BY start_time, end_time\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "transcript_segments",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
         "name": "speaker",
         "type_info": "Text",
         "origin": {
@@ -15,7 +26,7 @@
         }
       },
       {
-        "ordinal": 1,
+        "ordinal": 2,
         "name": "text:_",
         "type_info": "Text",
         "origin": {
@@ -26,7 +37,7 @@
         }
       },
       {
-        "ordinal": 2,
+        "ordinal": 3,
         "name": "start:_",
         "type_info": "Int4",
         "origin": {
@@ -37,7 +48,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "end:_",
         "type_info": "Int4",
         "origin": {
@@ -57,8 +68,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "30dbd13b78eb1fce0f6eb6d0f9dae95ef6bd2d4620751550b4584eb6a5eb2161"
+  "hash": "99d0e48a79eb494931e92f4441b6ea6456ac06813c876421d4b2ef0929f89d44"
 }
