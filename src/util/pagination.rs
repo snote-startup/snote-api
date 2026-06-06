@@ -1,5 +1,6 @@
 use base64::Engine;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use utoipa::ToSchema;
 
 #[derive(Debug, Deserialize)]
 pub struct PaginationQuery {
@@ -8,7 +9,7 @@ pub struct PaginationQuery {
     pub cursor: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct PaginatedVec<T> {
     pub data: Vec<T>,
     pub next_cursor: Option<String>,

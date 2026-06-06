@@ -1,26 +1,22 @@
 use std::fmt::Write;
 
-use async_stream::stream;
 use futures::{Stream, StreamExt, TryStreamExt};
 use pgvector::Vector;
+use rig_core::message::{AssistantContent, Message, UserContent};
 use rig_core::{
     agent::MultiTurnStreamItem,
     client::{CompletionClient, EmbeddingsClient},
     embeddings::EmbeddingModel,
-    message::{AssistantContent, Message, UserContent},
     providers::gemini,
     streaming::{StreamedAssistantContent, StreamingChat},
 };
 use sqlx::PgPool;
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::mpsc;
 use uuid::Uuid;
 
 use crate::{
     config::CONFIG,
-    feature::project::{
-        model::{ChatMessage, ChatRole},
-        repository,
-    },
+    feature::project::{model::ChatRole, repository},
 };
 
 const SYSTEM_PROMPT: &str = r#"
@@ -111,12 +107,11 @@ pub async fn chat(
     });
 
     let stream = stream
-        .inspect_ok(move |chunk| match chunk {
-            MultiTurnStreamItem::FinalResponse(final_response) => {
+        .inspect_ok(move |chunk| {
+            if let MultiTurnStreamItem::FinalResponse(final_response) = chunk {
                 let response = final_response.response();
-                tx.send(response.to_string());
+                let _ = tx.send(response.to_string());
             }
-            _ => {}
         })
         .filter_map(|item| async move {
             match item {
@@ -150,11 +145,11 @@ async fn build_completed_prompt(
     .await?;
     let mut context = String::new();
     for segment in &segments {
-        writeln!(&mut context, "[segment_id={}]", segment.id);
-        writeln!(&mut context, "speaker={}", segment.speaker);
-        writeln!(&mut context, "text={}", segment.text);
-        writeln!(&mut context, "start={}", segment.start);
-        writeln!(&mut context, "end={}", segment.end);
+        writeln!(&mut context, "[segment_id={}]", segment.id).unwrap();
+        writeln!(&mut context, "speaker={}", segment.speaker).unwrap();
+        writeln!(&mut context, "text={}", segment.text).unwrap();
+        writeln!(&mut context, "start={}", segment.start).unwrap();
+        writeln!(&mut context, "end={}", segment.end).unwrap();
         context.push('\n');
     }
 

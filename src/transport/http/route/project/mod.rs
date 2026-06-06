@@ -14,4 +14,5 @@ pub fn build() -> Router<Arc<ApiState>> {
         .route("/{id}", routing::patch(handler::update))
         .route("/{id}/upload", routing::post(handler::upload_audio))
         .route("/{id}/transcript", routing::get(handler::get_transcript))
+        .route("/{id}/chat", routing::get(handler::get_chat_messages))
 }

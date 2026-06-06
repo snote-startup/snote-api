@@ -30,10 +30,12 @@ pub enum ChatRole {
     Assistant,
 }
 
+#[derive(Serialize, ToSchema)]
 pub struct ChatMessage {
     pub id: Uuid,
     pub role: ChatRole,
     pub content: String,
+    #[schema(value_type = String, format = DateTime)]
     pub created_at: DateTime<Utc>,
 }
 
