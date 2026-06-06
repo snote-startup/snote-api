@@ -141,7 +141,7 @@ async fn build_completed_prompt(
         database,
         id,
         &embedding,
-        CONFIG.chat_context_trascript_size,
+        CONFIG.chat_context_transcript_size,
     )
     .await?;
     let mut context = String::new();

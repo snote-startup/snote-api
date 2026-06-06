@@ -32,7 +32,7 @@ pub struct Config {
     #[serde(default = "default_chat_context_history_size")]
     pub chat_context_history_size: u32,
     #[serde(default = "default_chat_context_transcript_size")]
-    pub chat_context_trascript_size: u32,
+    pub chat_context_transcript_size: u32,
 }
 
 #[allow(unused)]
