@@ -7,7 +7,7 @@ pub async fn get_transcript(
     database: &PgPool,
     id: Uuid,
 ) -> color_eyre::Result<Vec<TranscriptSegment>> {
-    let transcripts = repository::get_transcript(database, id).await?;
+    let transcripts = repository::get_transcript_segments(database, id).await?;
 
     Ok(transcripts)
 }

@@ -15,6 +15,9 @@ pub struct Project {
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct TranscriptSegment {
+    // HACK: add default value to id to fit with assembly_ai return type
+    #[serde(default = "Uuid::new_v4")]
+    pub id: Uuid,
     pub speaker: String,
     pub text: String,
     pub start: i32,
@@ -26,11 +29,20 @@ pub struct TranscriptSegment {
 #[serde(rename_all = "snake_case")]
 pub enum ChatRole {
     User,
-    Assistance,
+    Assistant,
 }
 
+#[derive(Serialize, ToSchema)]
 pub struct ChatMessage {
+    pub id: Uuid,
     pub role: ChatRole,
     pub content: String,
+    #[schema(value_type = String, format = DateTime)]
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ChatMessageCursor {
+    pub id: Uuid,
     pub created_at: DateTime<Utc>,
 }

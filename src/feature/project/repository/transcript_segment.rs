@@ -1,3 +1,4 @@
+use pgvector::Vector;
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
@@ -38,7 +39,7 @@ pub async fn create_transcript_segments(
 }
 
 #[allow(unused)]
-pub async fn create_transcript(
+pub async fn create_transcript_segment(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
     segment: &TranscriptSegment,
@@ -60,19 +61,42 @@ pub async fn create_transcript(
     Ok(())
 }
 
-pub async fn get_transcript(
+pub async fn get_transcript_segments(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
 ) -> sqlx::Result<Vec<TranscriptSegment>> {
     sqlx::query_as!(
         TranscriptSegment,
         r#"
-            SELECT speaker, content as "text:_", start_time as "start:_", end_time as "end:_"
+            SELECT id, speaker, content as "text:_", start_time as "start:_", end_time as "end:_"
             FROM transcript_segments
             WHERE project_id = $1
             ORDER BY start_time, end_time
         "#,
         project_id
+    )
+    .fetch_all(executor)
+    .await
+}
+
+pub async fn get_top_k_transcript_segments(
+    executor: impl PgExecutor<'_>,
+    project_id: Uuid,
+    embedding: &Vector,
+    k: u32,
+) -> sqlx::Result<Vec<TranscriptSegment>> {
+    sqlx::query_as!(
+        TranscriptSegment,
+        r#"
+            SELECT id, speaker, content as "text:_", start_time as "start:_", end_time as "end:_"
+            FROM transcript_segments
+            WHERE project_id = $1
+            ORDER BY embedding <=> $2
+            LIMIT $3
+        "#,
+        project_id,
+        embedding as _,
+        k as i64
     )
     .fetch_all(executor)
     .await

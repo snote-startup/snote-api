@@ -1,25 +1,28 @@
-#![allow(unused)]
-
-use futures_lite::Stream;
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::feature::project::model::{ChatMessage, ChatRole};
+use crate::feature::project::model::{ChatMessage, ChatMessageCursor, ChatRole};
 
 pub async fn create_chat_messages(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
-    role: ChatRole,
-    content: &str,
+    roles: &[ChatRole],
+    contents: &[String],
 ) -> sqlx::Result<()> {
+    let project_ids = vec![project_id; roles.len()];
+
     sqlx::query!(
         r#"
             INSERT INTO chat_messages(project_id, role, content)
-            VALUES($1, $2, $3)
+            SELECT * FROM UNNEST(
+                $1::uuid[],
+                $2::chat_role[],
+                $3::text[]
+            )
         "#,
-        project_id,
-        role as _,
-        content
+        &project_ids,
+        roles as _,
+        contents
     )
     .execute(executor)
     .await?;
@@ -27,19 +30,50 @@ pub async fn create_chat_messages(
     Ok(())
 }
 
-pub fn get_chat_messages<'a>(
-    executor: impl PgExecutor<'a> + 'a,
+pub async fn get_chat_messages(
+    executor: impl PgExecutor<'_>,
     project_id: Uuid,
-) -> impl Stream<Item = sqlx::Result<ChatMessage>> {
+    limit: u32,
+) -> sqlx::Result<Vec<ChatMessage>> {
     sqlx::query_as!(
         ChatMessage,
         r#"
-            SELECT role as "role: _", content, created_at
+            SELECT id, role as "role: _", content, created_at
             FROM chat_messages
             WHERE project_id = $1
-            ORDER BY created_at DESC
+            ORDER BY created_at DESC, id DESC
+            LIMIT $2
         "#,
-        project_id
+        project_id,
+        limit as i64,
     )
-    .fetch(executor)
+    .fetch_all(executor)
+    .await
+}
+
+pub async fn get_paginated_chat_messages(
+    executor: impl PgExecutor<'_>,
+    project_id: Uuid,
+    cursor: ChatMessageCursor,
+    limit: u32,
+) -> sqlx::Result<Vec<ChatMessage>> {
+    sqlx::query_as!(
+        ChatMessage,
+        r#"
+            SELECT id, role as "role: _", content, created_at
+            FROM chat_messages
+            WHERE project_id = $1 AND(
+                created_at < $2
+                OR (created_at = $2 AND id < $3)
+            )
+            ORDER BY created_at DESC, id DESC
+            LIMIT $4
+        "#,
+        project_id,
+        cursor.created_at,
+        cursor.id,
+        limit as i64
+    )
+    .fetch_all(executor)
+    .await
 }
