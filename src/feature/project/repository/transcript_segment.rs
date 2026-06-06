@@ -68,7 +68,7 @@ pub async fn get_transcript_segments(
     sqlx::query_as!(
         TranscriptSegment,
         r#"
-            SELECT speaker, content as "text:_", start_time as "start:_", end_time as "end:_"
+            SELECT id, speaker, content as "text:_", start_time as "start:_", end_time as "end:_"
             FROM transcript_segments
             WHERE project_id = $1
             ORDER BY start_time, end_time
@@ -88,7 +88,7 @@ pub async fn get_top_k_transcript_segments(
     sqlx::query_as!(
         TranscriptSegment,
         r#"
-            SELECT speaker, content as "text:_", start_time as "start:_", end_time as "end:_"
+            SELECT id, speaker, content as "text:_", start_time as "start:_", end_time as "end:_"
             FROM transcript_segments
             WHERE project_id = $1
             ORDER BY embedding <=> $2

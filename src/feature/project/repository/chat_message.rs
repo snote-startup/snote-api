@@ -1,6 +1,3 @@
-#![allow(unused)]
-
-use futures_lite::Stream;
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
@@ -9,17 +6,23 @@ use crate::feature::project::model::{ChatMessage, ChatMessageCursor, ChatRole};
 pub async fn create_chat_messages(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
-    role: ChatRole,
-    content: &str,
+    roles: &[ChatRole],
+    contents: &[String],
 ) -> sqlx::Result<()> {
+    let project_ids = vec![project_id; roles.len()];
+
     sqlx::query!(
         r#"
             INSERT INTO chat_messages(project_id, role, content)
-            VALUES($1, $2, $3)
+            SELECT * FROM UNNEST(
+                $1::uuid[],
+                $2::chat_role[],
+                $3::text[]
+            )
         "#,
-        project_id,
-        role as _,
-        content
+        &project_ids,
+        roles as _,
+        contents
     )
     .execute(executor)
     .await?;
@@ -30,7 +33,7 @@ pub async fn create_chat_messages(
 pub async fn get_chat_messages(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
-    limit: usize,
+    limit: u32,
 ) -> sqlx::Result<Vec<ChatMessage>> {
     sqlx::query_as!(
         ChatMessage,
@@ -52,7 +55,7 @@ pub async fn get_paginated_chat_messages(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
     cursor: ChatMessageCursor,
-    limit: usize,
+    limit: u32,
 ) -> sqlx::Result<Vec<ChatMessage>> {
     sqlx::query_as!(
         ChatMessage,

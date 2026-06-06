@@ -21,7 +21,7 @@ pub async fn get_chat_messages(
         }
         None => repository::get_chat_messages(database, id, query.limit + 1).await,
     }?;
-    let next_cursor = if data.len() > query.limit {
+    let next_cursor = if data.len() > query.limit as usize {
         let last = data.pop().unwrap();
         Some(pagination::encode(&ChatMessageCursor {
             id: last.id,

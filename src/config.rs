@@ -30,9 +30,9 @@ pub struct Config {
 
     pub gemini_api_key: String,
     #[serde(default = "default_chat_context_history_size")]
-    pub chat_context_history_size: usize,
+    pub chat_context_history_size: u32,
     #[serde(default = "default_chat_context_transcript_size")]
-    pub chat_context_trascript_size: usize,
+    pub chat_context_trascript_size: u32,
 }
 
 #[allow(unused)]
@@ -73,10 +73,10 @@ const fn default_jwt_refresh_expired_in() -> u64 {
     Duration::from_hours(7 * 24).as_secs()
 }
 
-const fn default_chat_context_history_size() -> usize {
+const fn default_chat_context_history_size() -> u32 {
     10
 }
 
-const fn default_chat_context_transcript_size() -> usize {
+const fn default_chat_context_transcript_size() -> u32 {
     10
 }

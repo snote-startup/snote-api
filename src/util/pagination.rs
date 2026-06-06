@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 #[derive(Debug, Deserialize)]
 pub struct PaginationQuery {
     #[serde(default = "default_limit")]
-    pub limit: usize,
+    pub limit: u32,
     pub cursor: Option<String>,
 }
 
@@ -24,6 +24,6 @@ pub fn decode<T: DeserializeOwned>(s: &str) -> color_eyre::Result<T> {
     Ok(serde_json::from_slice(&bytes)?)
 }
 
-const fn default_limit() -> usize {
+const fn default_limit() -> u32 {
     10
 }

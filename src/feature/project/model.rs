@@ -15,6 +15,7 @@ pub struct Project {
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct TranscriptSegment {
+    pub id: Uuid,
     pub speaker: String,
     pub text: String,
     pub start: i32,
@@ -26,7 +27,7 @@ pub struct TranscriptSegment {
 #[serde(rename_all = "snake_case")]
 pub enum ChatRole {
     User,
-    Assistance,
+    Assistant,
 }
 
 pub struct ChatMessage {
