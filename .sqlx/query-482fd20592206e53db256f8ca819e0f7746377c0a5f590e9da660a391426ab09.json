@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT role as \"role: _\", content, created_at\n            FROM chat_messages\n            WHERE project_id = $1\n            ORDER BY created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "role: _",
+        "type_info": {
+          "Custom": {
+            "name": "chat_role",
+            "kind": {
+              "Enum": [
+                "user",
+                "assistance"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chat_messages",
+            "name": "role"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "content",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "chat_messages",
+            "name": "content"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chat_messages",
+            "name": "created_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "482fd20592206e53db256f8ca819e0f7746377c0a5f590e9da660a391426ab09"
+}
