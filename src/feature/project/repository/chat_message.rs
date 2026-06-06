@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use futures_lite::Stream;
 use sqlx::PgExecutor;
 use uuid::Uuid;
