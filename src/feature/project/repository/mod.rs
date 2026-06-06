@@ -4,4 +4,5 @@ mod transcript_segment;
 
 pub use project::*;
 pub use transcript_segment::*;
+#[allow(unused)]
 pub use chat_message::*;
