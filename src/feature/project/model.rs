@@ -34,3 +34,8 @@ pub struct ChatMessage {
     pub content: String,
     pub created_at: DateTime<Utc>,
 }
+
+pub struct ChatMessageCursor {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+}
