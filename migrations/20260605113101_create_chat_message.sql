@@ -10,3 +10,6 @@ CREATE TABLE IF NOT EXISTS chat_messages(
     content text NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE INDEX idx_chat_message_project_time
+ON chat_messages(project_id, created_at DESC);
