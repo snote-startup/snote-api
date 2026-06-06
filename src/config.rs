@@ -27,6 +27,12 @@ pub struct Config {
     pub aws_endpoint_url: String,
 
     pub assembly_ai_api_key: String,
+
+    pub gemini_api_key: String,
+    #[serde(default = "default_chat_context_history_size")]
+    pub chat_context_history_size: usize,
+    #[serde(default = "default_chat_context_transcript_size")]
+    pub chat_context_trascript_size: usize,
 }
 
 #[allow(unused)]
@@ -65,4 +71,12 @@ const fn default_jwt_expired_in() -> u64 {
 
 const fn default_jwt_refresh_expired_in() -> u64 {
     Duration::from_hours(7 * 24).as_secs()
+}
+
+const fn default_chat_context_history_size() -> usize {
+    5
+}
+
+const fn default_chat_context_transcript_size() -> usize {
+    10
 }
