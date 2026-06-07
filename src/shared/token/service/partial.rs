@@ -1,35 +1,25 @@
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-pub struct CompletedTokenUtil {
-    pub access: TokenUtil,
-    pub refresh: TokenUtil,
-}
+use crate::{Result, shared::token::model::Claims};
 
-#[derive(Serialize, Deserialize)]
-pub struct Claims {
-    pub sub: Uuid,
-    pub exp: u64,
-}
-
-pub struct TokenUtil {
+pub struct PartialTokenService {
     encoding_key: EncodingKey,
     decoding_key: DecodingKey,
     expired_in: u64,
 }
 
-impl TokenUtil {
-    pub fn new(secret: &str, expired_in: u64) -> TokenUtil {
-        TokenUtil {
+impl PartialTokenService {
+    pub fn new(secret: &str, expired_in: u64) -> Self {
+        Self {
             encoding_key: EncodingKey::from_secret(secret.as_bytes()),
             decoding_key: DecodingKey::from_secret(secret.as_bytes()),
             expired_in,
         }
     }
 
-    pub fn encode(&self, id: Uuid) -> color_eyre::Result<String> {
+    pub fn encode(&self, id: Uuid) -> Result<String> {
         let now = Utc::now().timestamp() as u64;
         let claims = Claims {
             sub: id,

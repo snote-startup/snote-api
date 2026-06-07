@@ -10,6 +10,9 @@ pub enum Error {
     #[error("Invalid token")]
     InvalidToken(#[from] jsonwebtoken::errors::Error),
 
+    #[error("Invalid pagination metadata")]
+    InvalidPaginationMetadata,
+
     #[error("Internal server error")]
     Internal(#[from] color_eyre::eyre::Error),
 }
