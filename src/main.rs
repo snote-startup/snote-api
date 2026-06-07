@@ -10,10 +10,6 @@ mod feature;
 mod shared;
 mod state;
 mod transport;
-mod util;
-
-use error::{Error, Result};
-use state::AppState;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {

@@ -1,6 +1,6 @@
 use aws_sdk_s3::{Client, primitives::ByteStream, types::ObjectCannedAcl};
 
-use crate::{Result, config::Config};
+use crate::{config::Config, error::Result};
 
 pub struct S3Service {
     pub client: Client,

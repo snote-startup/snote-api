@@ -1,7 +1,7 @@
 use base64::Engine;
 use serde::{Serialize, de::DeserializeOwned};
 
-use crate::{Error, Result};
+use crate::error::{Error, Result};
 
 pub fn encode<T: Serialize>(cursor: &T) -> Result<String> {
     let serialized = serde_json::to_vec(cursor).map_err(color_eyre::eyre::Error::from)?;

@@ -2,7 +2,7 @@ use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
 use uuid::Uuid;
 
-use crate::{Result, shared::token::model::Claims};
+use crate::{error::Result, shared::token::model::Claims};
 
 pub struct PartialTokenService {
     encoding_key: EncodingKey,

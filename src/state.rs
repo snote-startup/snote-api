@@ -1,32 +1,24 @@
 use sqlx::PgPool;
 
 use crate::{
-    config::CONFIG,
-    util::token::{CompletedTokenUtil, TokenUtil},
+    config::Config,
+    shared::{storage::service::S3Service, token::service::TokenService},
 };
 
 pub struct AppState {
     pub database: PgPool,
-    pub s3: aws_sdk_s3::Client,
-    pub token_util: CompletedTokenUtil,
+
+    pub token_service: TokenService,
+    pub s3_service: S3Service,
 }
 
 impl AppState {
-    pub async fn new() -> color_eyre::Result<AppState> {
-        let database = PgPool::connect(&CONFIG.database_url).await?;
-
-        let s3_config = aws_config::load_from_env().await;
-        let s3 = aws_sdk_s3::Client::new(&s3_config);
-
-        let token_util = CompletedTokenUtil {
-            access: TokenUtil::new(&CONFIG.jwt_secret, CONFIG.jwt_expired_in),
-            refresh: TokenUtil::new(&CONFIG.jwt_refresh_secret, CONFIG.jwt_refresh_expired_in),
-        };
-
+    pub async fn new(config: &Config) -> color_eyre::Result<AppState> {
         Ok(AppState {
-            database,
-            s3,
-            token_util,
+            database: PgPool::connect(&config.database_url).await?,
+
+            token_service: TokenService::new(config),
+            s3_service: S3Service::new(config).await?,
         })
     }
 }
