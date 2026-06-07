@@ -1,7 +1,7 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use super::model::Account;
+use crate::feature::auth::model::Account;
 
 pub async fn create_account(
     executor: impl PgExecutor<'_>,

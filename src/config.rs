@@ -11,9 +11,6 @@ pub struct Config {
     #[serde(default = "default_origins")]
     pub origins: String,
 
-    #[serde(default = "default_bcrypt_cost")]
-    pub bcrypt_cost: u32,
-
     #[serde(default = "default_jwt_secret")]
     pub jwt_secret: String,
     #[serde(default = "default_jwt_expired_in")]
@@ -56,10 +53,6 @@ const fn default_port() -> u16 {
 
 fn default_origins() -> String {
     "http://localhost:3000".to_string()
-}
-
-const fn default_bcrypt_cost() -> u32 {
-    10
 }
 
 fn default_jwt_secret() -> String {

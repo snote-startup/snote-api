@@ -1,65 +1,51 @@
-use color_eyre::eyre::bail;
-
 use sqlx::PgPool;
 
 use crate::{
-    config::CONFIG,
-    feature::auth::{
-        model::{MinimalAccount, TokenPair},
-        repository,
-    },
-    util::token::CompletedTokenUtil,
+    error::{Error, Result},
+    feature::auth::{model::MinimalAccount, repository},
+    shared::token::{model::TokenPair, service::TokenService},
 };
 
-#[tracing::instrument(err(Debug), skip(database, token_util))]
+const BCRYPT_COST: u32 = 10;
+
+#[tracing::instrument(err(Debug), skip(database, token_service))]
 pub async fn register(
     database: &PgPool,
-    token_util: &CompletedTokenUtil,
+    token_service: &TokenService,
     email: &str,
     password: &str,
     name: &str,
-) -> color_eyre::Result<TokenPair> {
-    let hashed_password = bcrypt::hash(password, CONFIG.bcrypt_cost)?;
+) -> Result<TokenPair> {
+    let hashed_password =
+        bcrypt::hash(password, BCRYPT_COST).map_err(color_eyre::eyre::Error::from)?;
     let id = repository::create_account(database, email, &hashed_password, name).await?;
 
-    let access_token = token_util.access.encode(id)?;
-    let refresh_token = token_util.refresh.encode(id)?;
-
-    Ok(TokenPair {
-        access: access_token,
-        refresh: refresh_token,
-    })
+    token_service.encode(id)
 }
 
-#[tracing::instrument(err(Debug), skip(database, token_util))]
+#[tracing::instrument(err(Debug), skip(database, token_service))]
 pub async fn login(
     database: &PgPool,
-    token_util: &CompletedTokenUtil,
+    token_service: &TokenService,
     email: &str,
     password: &str,
-) -> color_eyre::Result<TokenPair> {
+) -> Result<TokenPair> {
     let account = repository::get_account_by_email(database, email).await?;
-    if !bcrypt::verify(password, &account.password)? {
-        bail!("invalid password")
+    if !bcrypt::verify(password, &account.password).map_err(color_eyre::eyre::Error::from)? {
+        return Err(Error::WrongPassword);
     }
-
     let id = account.id;
-    let access_token = token_util.access.encode(id)?;
-    let refresh_token = token_util.refresh.encode(id)?;
 
-    Ok(TokenPair {
-        access: access_token,
-        refresh: refresh_token,
-    })
+    token_service.encode(id)
 }
 
-#[tracing::instrument(err(Debug), skip(database, token_util))]
+#[tracing::instrument(err(Debug), skip(database, token_service))]
 pub async fn me(
     database: &PgPool,
-    token_util: &CompletedTokenUtil,
+    token_service: &TokenService,
     access_token: &str,
-) -> color_eyre::Result<MinimalAccount> {
-    let id = token_util.access.decode(access_token)?;
+) -> Result<MinimalAccount> {
+    let id = token_service.access.decode(access_token)?;
     let account = repository::get_account(database, id).await?;
 
     Ok(MinimalAccount {
@@ -69,15 +55,9 @@ pub async fn me(
     })
 }
 
-#[tracing::instrument(err(Debug), skip(token_util))]
-pub fn refresh(
-    token_util: &CompletedTokenUtil,
-    refresh_token: &str,
-) -> color_eyre::Result<TokenPair> {
-    let id = token_util.refresh.decode(refresh_token)?;
+#[tracing::instrument(err(Debug), skip(token_service))]
+pub fn refresh(token_service: &TokenService, refresh_token: &str) -> Result<TokenPair> {
+    let id = token_service.refresh.decode(refresh_token)?;
 
-    Ok(TokenPair {
-        refresh: token_util.refresh.encode(id)?,
-        access: token_util.access.encode(id)?,
-    })
+    token_service.encode(id)
 }
