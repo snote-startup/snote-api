@@ -1,6 +1,6 @@
 use aws_sdk_s3::{Client, primitives::ByteStream, types::ObjectCannedAcl};
 
-use crate::Result;
+use crate::{Result, config::Config};
 
 pub struct S3Service {
     pub client: Client,
@@ -9,6 +9,17 @@ pub struct S3Service {
 }
 
 impl S3Service {
+    pub async fn new(config: &Config) -> color_eyre::Result<Self> {
+        let s3_config = aws_config::load_from_env().await;
+        let client = aws_sdk_s3::Client::new(&s3_config);
+
+        Ok(Self {
+            client,
+            endpoint_url: config.aws_endpoint_url.to_string(),
+            bucket: config.s3_bucket.to_string(),
+        })
+    }
+
     pub async fn upload(&self, key: String, content: ByteStream) -> Result<String> {
         let req = self
             .client

@@ -1,4 +1,4 @@
-use std::{sync::LazyLock, time::Duration};
+use std::time::Duration;
 
 use serde::Deserialize;
 
@@ -35,19 +35,20 @@ pub struct Config {
     pub chat_context_transcript_size: u32,
 }
 
-#[allow(unused)]
-pub static CONFIG: LazyLock<Config> = LazyLock::new(|| {
-    ::config::Config::builder()
-        .add_source(
-            ::config::Environment::default()
-                .try_parsing(true)
-                .separator("__"),
-        )
-        .build()
-        .unwrap()
-        .try_deserialize()
-        .unwrap()
-});
+impl Config {
+    pub fn new() -> color_eyre::Result<Self> {
+        let config = ::config::Config::builder()
+            .add_source(
+                ::config::Environment::default()
+                    .try_parsing(true)
+                    .separator("__"),
+            )
+            .build()?
+            .try_deserialize()?;
+
+        Ok(config)
+    }
+}
 
 const fn default_port() -> u16 {
     3000
