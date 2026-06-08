@@ -18,6 +18,7 @@ pub struct Account {
     pub role: Role,
 }
 
+#[derive(Serialize, ToSchema)]
 pub struct MinimalAccount {
     pub email: String,
     pub name: String,

@@ -1,76 +1,90 @@
 mod token;
 
+use http::StatusCode;
 use sqlx::PgPool;
 
 use crate::{
-    error::{Error, Result},
-    feature::auth::{model::MinimalAccount, repository},
-    shared::token::{model::TokenPair, service::TokenService},
-    state::AppState,
+    error::{Error, ErrorContext, Result, ResultExt},
+    feature::auth::{
+        model::{MinimalAccount, TokenPair},
+        repository,
+    },
 };
 
 pub use token::*;
 
 const BCRYPT_COST: u32 = 10;
 
-#[tracing::instrument(err(Debug), skip(db))]
-pub async fn register(
-    db: &PgPool,
-    access_key_pair: &
+pub struct AuthService;
 
-    email: &str,
-    password: &str,
-    name: &str
-) -> Result<TokenPair> {
-    let hashed_password = bcrypt::hash(password, BCRYPT_COST)?;
-    let id = repository::create_account(db, email, &hashed_password, name).await?;
+impl AuthService {
+    #[tracing::instrument(err(Debug), skip(self, db, token_service))]
+    pub async fn register(
+        &self,
 
-    token_service.encode(id)
-}
+        db: &PgPool,
+        token_service: &TokenService,
 
-#[tracing::instrument(err(Debug), skip(database, token_service))]
-pub async fn login(
-    AppState {
-        db, token_service, ..
-    }: &AppState,
+        email: &str,
+        password: &str,
+        name: &str,
+    ) -> Result<TokenPair> {
+        let hashed_password = bcrypt::hash(password, BCRYPT_COST)?;
+        let id = repository::create_account(db, email, &hashed_password, name).await?;
 
-    email: &str,
-    password: &str,
-) -> Result<TokenPair> {
-    let account = repository::get_account_by_email(database, email).await?;
-    if !bcrypt::verify(password, &account.password).map_err(color_eyre::eyre::Error::from)? {
-        return Err(Error::WrongPassword);
+        token_service.encode(id)
     }
-    let id = account.id;
 
-    token_service.encode(id)
-}
+    #[tracing::instrument(err(Debug), skip(self, db, token_service))]
+    pub async fn login(
+        &self,
 
-#[tracing::instrument(err(Debug), skip(database, token_service))]
-pub async fn me(
-    AppState {
-        db, token_service, ..
-    }: &AppState,
+        db: &PgPool,
+        token_service: &TokenService,
 
-    access_token: &str,
-) -> Result<MinimalAccount> {
-    let id = token_service.access.decode(access_token)?;
-    let account = repository::get_account(database, id).await?;
+        email: &str,
+        password: &str,
+    ) -> Result<TokenPair> {
+        let account = repository::get_account_by_email(db, email).await?;
+        if !bcrypt::verify(password, &account.password)? {
+            return Err(ErrorContext {
+                status: StatusCode::BAD_REQUEST,
+                message: "Wrong password".to_string(),
+                ..Default::default()
+            }
+            .into());
+        }
+        let id = account.id;
 
-    Ok(MinimalAccount {
-        email: account.email,
-        name: account.name,
-        role: account.role,
-    })
-}
+        token_service.encode(id)
+    }
 
-#[tracing::instrument(err(Debug), skip(token_service))]
-pub fn refresh(
-    AppState { token_service, .. }: &AppState,
+    #[tracing::instrument(err(Debug), skip(self, db, token_service))]
+    pub async fn me(
+        &self,
 
-    refresh_token: &str,
-) -> Result<TokenPair> {
-    let id = token_service.refresh.decode(refresh_token)?;
+        db: &PgPool,
+        token_service: &TokenService,
 
-    token_service.encode(id)
+        access_token: &str,
+    ) -> Result<MinimalAccount> {
+        let id = token_service.access.decode(access_token)?;
+        let account = repository::get_account(db, id).await?;
+
+        Ok(MinimalAccount {
+            email: account.email,
+            name: account.name,
+            role: account.role,
+        })
+    }
+
+    #[tracing::instrument(err(Debug), skip(self, token_service))]
+    pub fn refresh(&self, token_service: &TokenService, refresh_token: &str) -> Result<TokenPair> {
+        let id = token_service
+            .refresh
+            .decode(refresh_token)
+            .with_context(StatusCode::UNAUTHORIZED, "Invalid refresh token")?;
+
+        token_service.encode(id)
+    }
 }

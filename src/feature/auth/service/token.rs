@@ -1,37 +1,57 @@
 use chrono::Utc;
-use jsonwebtoken::{Header, Validation};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
 use uuid::Uuid;
 
-use crate::error::Result;
-use crate::feature::auth::model::{Claims, TokenMetadata, TokenPair};
+use crate::{
+    error::Result,
+    feature::auth::model::{Claims, TokenPair},
+};
 
-pub fn create_token_pair(
-    access_metadata: &TokenMetadata,
-    refresh_metadata: &TokenMetadata,
-    id: Uuid,
-) -> Result<TokenPair> {
-    let access = create_token(access_metadata, id)?;
-    let refresh = create_token(refresh_metadata, id)?;
-
-    Ok(TokenPair { access, refresh })
+pub struct TokenService {
+    pub access: PartialTokenService,
+    pub refresh: PartialTokenService,
 }
 
-fn create_token(metadata: &TokenMetadata, id: Uuid) -> Result<String> {
-    let now = Utc::now().timestamp() as u64;
-    let claims = Claims {
-        sub: id,
-        exp: now + metadata.expired_in,
-    };
-
-    let token = jsonwebtoken::encode(&Header::default(), &claims, &metadata.encoding_key)?;
-
-    Ok(token)
+impl TokenService {
+    pub fn encode(&self, id: Uuid) -> Result<TokenPair> {
+        Ok(TokenPair {
+            refresh: self.refresh.encode(id)?,
+            access: self.access.encode(id)?,
+        })
+    }
 }
 
-pub fn decode_token(metadata: &TokenMetadata, token: &str) -> Result<Uuid> {
-    let claims =
-        jsonwebtoken::decode::<Claims>(token, &metadata.decoding_key, &Validation::default())?
-            .claims;
+pub struct PartialTokenService {
+    encoding_key: EncodingKey,
+    decoding_key: DecodingKey,
+    expired_in: u64,
+}
 
-    Ok(claims.sub)
+impl PartialTokenService {
+    pub fn new(secret: &str, expired_in: u64) -> Self {
+        Self {
+            encoding_key: EncodingKey::from_secret(secret.as_bytes()),
+            decoding_key: DecodingKey::from_secret(secret.as_bytes()),
+            expired_in,
+        }
+    }
+
+    pub fn encode(&self, id: Uuid) -> Result<String> {
+        let now = Utc::now().timestamp() as u64;
+        let claims = Claims {
+            sub: id,
+            exp: now + self.expired_in,
+        };
+
+        let token = jsonwebtoken::encode(&Header::default(), &claims, &self.encoding_key)?;
+
+        Ok(token)
+    }
+
+    pub fn decode(&self, token: &str) -> color_eyre::Result<Uuid> {
+        let token =
+            jsonwebtoken::decode::<Claims>(token, &self.decoding_key, &Validation::default())?;
+
+        Ok(token.claims.sub)
+    }
 }
