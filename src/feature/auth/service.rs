@@ -4,14 +4,19 @@ use crate::{
     error::{Error, Result},
     feature::auth::{model::MinimalAccount, repository},
     shared::token::{model::TokenPair, service::TokenService},
+    state::AppState,
 };
 
 const BCRYPT_COST: u32 = 10;
 
 #[tracing::instrument(err(Debug), skip(database, token_service))]
 pub async fn register(
-    database: &PgPool,
-    token_service: &TokenService,
+    AppState {
+        database,
+        token_service,
+        ..
+    }: &AppState,
+
     email: &str,
     password: &str,
     name: &str,
@@ -25,8 +30,12 @@ pub async fn register(
 
 #[tracing::instrument(err(Debug), skip(database, token_service))]
 pub async fn login(
-    database: &PgPool,
-    token_service: &TokenService,
+    AppState {
+        database,
+        token_service,
+        ..
+    }: &AppState,
+
     email: &str,
     password: &str,
 ) -> Result<TokenPair> {
@@ -41,8 +50,12 @@ pub async fn login(
 
 #[tracing::instrument(err(Debug), skip(database, token_service))]
 pub async fn me(
-    database: &PgPool,
-    token_service: &TokenService,
+    AppState {
+        database,
+        token_service,
+        ..
+    }: &AppState,
+
     access_token: &str,
 ) -> Result<MinimalAccount> {
     let id = token_service.access.decode(access_token)?;
@@ -56,7 +69,11 @@ pub async fn me(
 }
 
 #[tracing::instrument(err(Debug), skip(token_service))]
-pub fn refresh(token_service: &TokenService, refresh_token: &str) -> Result<TokenPair> {
+pub fn refresh(
+    AppState { token_service, .. }: &AppState,
+
+    refresh_token: &str,
+) -> Result<TokenPair> {
     let id = token_service.refresh.decode(refresh_token)?;
 
     token_service.encode(id)

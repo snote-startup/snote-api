@@ -1,8 +1,9 @@
 mod partial;
 
 pub use partial::*;
+use uuid::Uuid;
 
-use crate::config::Config;
+use crate::{config::Config, error::Result, shared::token::model::TokenPair};
 
 pub struct TokenService {
     pub access: PartialTokenService,
@@ -18,5 +19,12 @@ impl TokenService {
                 config.jwt_refresh_expired_in,
             ),
         }
+    }
+
+    pub fn encode(&self, id: Uuid) -> Result<TokenPair> {
+        Ok(TokenPair {
+            refresh: self.refresh.encode(id)?,
+            access: self.access.encode(id)?,
+        })
     }
 }

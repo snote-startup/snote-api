@@ -4,16 +4,15 @@ use uuid::Uuid;
 
 use crate::feature::project::model::TranscriptSegment;
 
-pub async fn create_transcript_segments(
+pub async fn create_transcript(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
-    segments: &[TranscriptSegment],
+    speakers: &[String],
+    texts: &[String],
+    starts: &[i32],
+    ends: &[i32],
 ) -> sqlx::Result<()> {
-    let project_ids = vec![project_id; segments.len()];
-    let speakers: Vec<_> = segments.iter().map(|x| x.speaker.clone()).collect();
-    let texts: Vec<_> = segments.iter().map(|x| x.text.clone()).collect();
-    let starts: Vec<_> = segments.iter().map(|x| x.start).collect();
-    let ends: Vec<_> = segments.iter().map(|x| x.end).collect();
+    let project_ids = vec![project_id; speakers.len()];
 
     sqlx::query!(
         r#"
@@ -38,30 +37,7 @@ pub async fn create_transcript_segments(
     Ok(())
 }
 
-#[allow(unused)]
-pub async fn create_transcript_segment(
-    executor: impl PgExecutor<'_>,
-    project_id: Uuid,
-    segment: &TranscriptSegment,
-) -> sqlx::Result<()> {
-    sqlx::query!(
-        r#"
-            INSERT INTO transcript_segments(project_id, speaker, content, start_time, end_time)
-            VALUES($1, $2, $3, $4, $5)
-        "#,
-        project_id,
-        segment.speaker,
-        segment.text,
-        segment.start,
-        segment.end,
-    )
-    .execute(executor)
-    .await?;
-
-    Ok(())
-}
-
-pub async fn get_transcript_segments(
+pub async fn get_transcript(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
 ) -> sqlx::Result<Vec<TranscriptSegment>> {

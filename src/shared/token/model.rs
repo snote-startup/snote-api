@@ -6,3 +6,8 @@ pub struct Claims {
     pub sub: Uuid,
     pub exp: u64,
 }
+
+pub struct TokenPair {
+    pub access: String,
+    pub refresh: String,
+}
