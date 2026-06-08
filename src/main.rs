@@ -10,6 +10,7 @@ mod feature;
 mod infra;
 mod state;
 mod util;
+mod doc;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {

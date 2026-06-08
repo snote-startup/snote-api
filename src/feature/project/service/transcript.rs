@@ -12,7 +12,7 @@ use crate::{
     config::Config,
     error::Result,
     feature::project::{model::TranscriptSegment, repository},
-    state::AppState,
+    state::ApiState,
 };
 
 const ASSEMBLY_AI_URL: &str = "https://api.assemblyai.com";
@@ -20,7 +20,7 @@ const POLL_INTERVAL: Duration = Duration::from_secs(3);
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn get_transcript(
-    AppState { db, .. }: &AppState,
+    ApiState { db, .. }: &ApiState,
 
     account_id: Uuid,
     id: Uuid,
@@ -32,12 +32,12 @@ pub async fn get_transcript(
 
 #[tracing::instrument(err(Debug), skip(database, storage_service, config))]
 pub async fn create_transcript(
-    AppState {
+    ApiState {
         db,
         storage_service,
         config,
         ..
-    }: &AppState,
+    }: &ApiState,
 
     account_id: Uuid,
     id: Uuid,

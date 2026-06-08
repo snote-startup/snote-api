@@ -4,14 +4,14 @@ mod transcript;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{error::Result, feature::project::model::Project, state::AppState};
+use crate::{error::Result, feature::project::model::Project, state::ApiState};
 
 pub use chat::*;
 pub use transcript::*;
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn create(
-    AppState { db, .. }: &AppState,
+    ApiState { db, .. }: &ApiState,
 
     account_id: Uuid,
     title: &str,
@@ -22,7 +22,7 @@ pub async fn create(
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn get_by_account(
-    AppState { db, .. }: &AppState,
+    ApiState { db, .. }: &ApiState,
 
     account_id: Uuid,
 ) -> Result<Vec<Project>> {
@@ -31,7 +31,7 @@ pub async fn get_by_account(
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn get(
-    AppState { db, .. }: &AppState,
+    ApiState { db, .. }: &ApiState,
 
     account_id: Uuid,
     id: Uuid,
@@ -41,7 +41,7 @@ pub async fn get(
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn update(
-    AppState { db, .. }: &AppState,
+    ApiState { db, .. }: &ApiState,
 
     account_id: Uuid,
     id: Uuid,
