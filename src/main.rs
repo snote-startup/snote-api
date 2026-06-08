@@ -8,7 +8,6 @@ mod config;
 mod error;
 mod feature;
 mod infra;
-mod shared;
 mod state;
 mod util;
 
@@ -31,6 +30,4 @@ async fn main() -> color_eyre::Result<()> {
         )
         .with(tracing_subscriber::fmt::layer().with_thread_ids(false))
         .init();
-
-    transport::http::run().await
 }
