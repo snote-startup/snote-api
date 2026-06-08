@@ -20,7 +20,7 @@ const POLL_INTERVAL: Duration = Duration::from_secs(3);
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn get_transcript(
-    AppState { database, .. }: &AppState,
+    AppState { db, .. }: &AppState,
 
     account_id: Uuid,
     id: Uuid,
@@ -33,7 +33,7 @@ pub async fn get_transcript(
 #[tracing::instrument(err(Debug), skip(database, storage_service, config))]
 pub async fn create_transcript(
     AppState {
-        database,
+        db,
         storage_service,
         config,
         ..

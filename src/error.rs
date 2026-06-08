@@ -122,33 +122,3 @@ impl<T> OptionExt<T> for Option<T> {
         })
     }
 }
-
-#[macro_export]
-macro_rules! bail {
-    ($status:expr, $fmt:expr $(, $args:expr)* $(,)?) => {
-        return Err($crate::error::ApiError {
-            context: $crate::error::Context {
-                status: $status,
-                message: format!($fmt $(, $args)*),
-                detail: None,
-            },
-            inner: Some(color_eyre::eyre::eyre!($fmt $(, $args)*))
-        });
-    };
-}
-
-#[macro_export]
-macro_rules! ensure {
-    ($cond:expr, $status:expr, $fmt:expr $(, $args:expr)* $(,)?) => {
-        if !$cond {
-            return Err($crate::error::Err {
-                context: $crate::error::Context {
-                    status: $status,
-                    message: format!($fmt $(, $args)*),
-                    detail: None,
-                },
-                inner: Some(color_eyre::eyre::eyre!($fmt $(, $args)*))
-            });
-        }
-    };
-}

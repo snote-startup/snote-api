@@ -8,7 +8,7 @@ use crate::{
 pub struct AppState {
     pub config: Config,
 
-    pub database: PgPool,
+    pub db: PgPool,
 
     pub token_service: TokenService,
     pub storage_service: StorageService,
@@ -17,7 +17,7 @@ pub struct AppState {
 impl AppState {
     pub async fn new(config: Config) -> color_eyre::Result<AppState> {
         Ok(AppState {
-            database: PgPool::connect(&config.database_url).await?,
+            db: PgPool::connect(&config.database_url).await?,
 
             token_service: TokenService::new(&config),
             storage_service: StorageService::new(&config).await?,

@@ -1,3 +1,5 @@
+mod token;
+
 use sqlx::PgPool;
 
 use crate::{
@@ -7,23 +9,21 @@ use crate::{
     state::AppState,
 };
 
+pub use token::*;
+
 const BCRYPT_COST: u32 = 10;
 
-#[tracing::instrument(err(Debug), skip(database, token_service))]
+#[tracing::instrument(err(Debug), skip(db))]
 pub async fn register(
-    AppState {
-        database,
-        token_service,
-        ..
-    }: &AppState,
+    db: &PgPool,
+    access_key_pair: &
 
     email: &str,
     password: &str,
-    name: &str,
+    name: &str
 ) -> Result<TokenPair> {
-    let hashed_password =
-        bcrypt::hash(password, BCRYPT_COST).map_err(color_eyre::eyre::Error::from)?;
-    let id = repository::create_account(database, email, &hashed_password, name).await?;
+    let hashed_password = bcrypt::hash(password, BCRYPT_COST)?;
+    let id = repository::create_account(db, email, &hashed_password, name).await?;
 
     token_service.encode(id)
 }
@@ -31,9 +31,7 @@ pub async fn register(
 #[tracing::instrument(err(Debug), skip(database, token_service))]
 pub async fn login(
     AppState {
-        database,
-        token_service,
-        ..
+        db, token_service, ..
     }: &AppState,
 
     email: &str,
@@ -51,9 +49,7 @@ pub async fn login(
 #[tracing::instrument(err(Debug), skip(database, token_service))]
 pub async fn me(
     AppState {
-        database,
-        token_service,
-        ..
+        db, token_service, ..
     }: &AppState,
 
     access_token: &str,

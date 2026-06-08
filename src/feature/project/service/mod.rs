@@ -11,7 +11,7 @@ pub use transcript::*;
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn create(
-    AppState { database, .. }: &AppState,
+    AppState { db, .. }: &AppState,
 
     account_id: Uuid,
     title: &str,
@@ -22,7 +22,7 @@ pub async fn create(
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn get_by_account(
-    AppState { database, .. }: &AppState,
+    AppState { db, .. }: &AppState,
 
     account_id: Uuid,
 ) -> Result<Vec<Project>> {
@@ -31,7 +31,7 @@ pub async fn get_by_account(
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn get(
-    AppState { database, .. }: &AppState,
+    AppState { db, .. }: &AppState,
 
     account_id: Uuid,
     id: Uuid,
@@ -41,7 +41,7 @@ pub async fn get(
 
 #[tracing::instrument(err(Debug), skip(database))]
 pub async fn update(
-    AppState { database, .. }: &AppState,
+    AppState { db, .. }: &AppState,
 
     account_id: Uuid,
     id: Uuid,
