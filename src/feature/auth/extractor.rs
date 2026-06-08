@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use crate::{
     error::{Error, ResultExt},
-    state::ApiState,
+    shared::ApiState,
 };
 
 pub struct AccountID(pub Uuid);

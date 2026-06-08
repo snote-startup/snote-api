@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use axum::{Router, routing};
 
-use crate::{feature::auth::handler, state::ApiState};
+use crate::{feature::auth::handler, shared::ApiState};
 
 pub fn routes() -> Router<Arc<ApiState>> {
     Router::new()

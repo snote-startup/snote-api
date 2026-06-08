@@ -10,8 +10,8 @@ use utoipa::ToSchema;
 
 use crate::{
     error::{Error, Result},
-    feature::auth::{self, AUTH_ENDPOINT, REFRESH_COOKIE},
-    state::ApiState,
+    feature::auth::{AUTH_ENDPOINT, REFRESH_COOKIE},
+    shared::ApiState,
 };
 
 #[derive(Debug, Deserialize, ToSchema)]

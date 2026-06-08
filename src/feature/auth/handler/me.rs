@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{Json, extract::State, http::StatusCode};
+use axum::{Json, extract::State};
 use axum_extra::{
     TypedHeader,
     headers::{Authorization, authorization::Bearer},
@@ -9,7 +9,7 @@ use axum_extra::{
 use crate::{
     error::{Error, Result},
     feature::auth::model::MinimalAccount,
-    state::ApiState,
+    shared::ApiState,
 };
 
 #[tracing::instrument(err(Debug), skip(state))]

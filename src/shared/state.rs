@@ -1,9 +1,9 @@
 use sqlx::PgPool;
 
 use crate::{
-    config::Config,
     feature::auth::service::{AuthService, PartialTokenService, TokenService},
     infra::{storage::S3Client, transcript::AssemblyAIClient},
+    shared::Config,
 };
 
 pub struct ApiState {

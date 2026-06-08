@@ -11,7 +11,7 @@ use utoipa::ToSchema;
 use crate::{
     error::{Error, Result},
     feature::auth::{AUTH_ENDPOINT, REFRESH_COOKIE},
-    state::ApiState,
+    shared::ApiState,
 };
 
 #[derive(Debug, Deserialize, ToSchema)]

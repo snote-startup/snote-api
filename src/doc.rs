@@ -8,7 +8,7 @@ use utoipa::{
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::feature::auth::handler as auth;
-use crate::{error::Error, state::ApiState};
+use crate::{error::Error, shared::ApiState};
 
 struct SecurityAddon;
 

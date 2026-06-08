@@ -4,13 +4,11 @@ use tracing::level_filters::LevelFilter;
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
-mod config;
+mod doc;
 mod error;
 mod feature;
 mod infra;
-mod state;
-mod util;
-mod doc;
+mod shared;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {

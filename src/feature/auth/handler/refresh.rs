@@ -9,7 +9,7 @@ use axum_extra::extract::{
 use crate::{
     error::{Error, ErrorContext, Result},
     feature::auth::{AUTH_ENDPOINT, REFRESH_COOKIE},
-    state::ApiState,
+    shared::ApiState,
 };
 
 #[tracing::instrument(err(Debug), skip(state))]
