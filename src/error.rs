@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Serialize, ToSchema)]
-pub struct Context {
+pub struct ErrorContext {
     #[serde(skip)]
     pub status: StatusCode,
 
@@ -14,7 +14,7 @@ pub struct Context {
     pub detail: Option<String>,
 }
 
-impl Default for Context {
+impl Default for ErrorContext {
     fn default() -> Self {
         Self {
             status: StatusCode::INTERNAL_SERVER_ERROR,
@@ -27,7 +27,7 @@ impl Default for Context {
 #[derive(Debug, Serialize, ToSchema, Default)]
 pub struct Error {
     #[serde(flatten)]
-    pub context: Context,
+    pub context: ErrorContext,
 
     #[serde(skip)]
     #[allow(dead_code)]
@@ -37,6 +37,15 @@ pub struct Error {
 impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
         (self.context.status, Json(self.context)).into_response()
+    }
+}
+
+impl From<ErrorContext> for Error {
+    fn from(context: ErrorContext) -> Self {
+        Error {
+            context,
+            inner: None,
+        }
     }
 }
 
@@ -79,7 +88,7 @@ where
         detail: &Option<String>,
     ) -> Result<T> {
         self.map_err(|error| Error {
-            context: Context {
+            context: ErrorContext {
                 status,
                 message: message.to_string(),
                 detail: detail.clone(),
@@ -113,7 +122,7 @@ impl<T> OptionExt<T> for Option<T> {
         detail: &Option<String>,
     ) -> Result<T> {
         self.ok_or_else(|| Error {
-            context: Context {
+            context: ErrorContext {
                 status,
                 message: message.to_string(),
                 detail: detail.clone(),
