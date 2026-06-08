@@ -4,6 +4,7 @@ use tracing::level_filters::LevelFilter;
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
+mod bootstrap;
 mod doc;
 mod error;
 mod feature;
@@ -29,4 +30,6 @@ async fn main() -> color_eyre::Result<()> {
         )
         .with(tracing_subscriber::fmt::layer().with_thread_ids(false))
         .init();
+
+    bootstrap::run().await
 }

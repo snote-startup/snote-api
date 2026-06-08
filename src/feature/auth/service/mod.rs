@@ -4,7 +4,7 @@ use http::StatusCode;
 use sqlx::PgPool;
 
 use crate::{
-    error::{Error, ErrorContext, Result, ResultExt},
+    error::{ErrorContext, Result, ResultExt},
     feature::auth::{
         model::{MinimalAccount, TokenPair},
         repository,
