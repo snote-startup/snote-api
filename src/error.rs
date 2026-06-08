@@ -1,24 +1,154 @@
-use thiserror::Error;
+use axum::{Json, http::StatusCode, response::IntoResponse};
+use serde::Serialize;
+use utoipa::ToSchema;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("Password is wrong")]
-    WrongPassword,
+#[derive(Debug, Serialize, ToSchema)]
+pub struct Context {
+    #[serde(skip)]
+    pub status: StatusCode,
 
-    #[error("Token not found")]
-    TokenNotFound,
+    pub message: String,
 
-    #[error("Invalid token")]
-    InvalidToken(#[from] jsonwebtoken::errors::Error),
+    pub detail: Option<String>,
+}
 
-    #[error("Invalid pagination metadata")]
-    InvalidPaginationMetadata,
+impl Default for Context {
+    fn default() -> Self {
+        Self {
+            status: StatusCode::INTERNAL_SERVER_ERROR,
+            message: "Something went wrong".to_string(),
+            detail: None,
+        }
+    }
+}
 
-    #[error("Internal server error")]
-    Database(#[from] sqlx::Error),
+#[derive(Debug, Serialize, ToSchema, Default)]
+pub struct Error {
+    #[serde(flatten)]
+    pub context: Context,
 
-    #[error("Internal server error")]
-    Internal(#[from] color_eyre::eyre::Error),
+    #[serde(skip)]
+    #[allow(dead_code)]
+    pub inner: Option<color_eyre::eyre::Error>,
+}
+
+impl IntoResponse for Error {
+    fn into_response(self) -> axum::response::Response {
+        (self.context.status, Json(self.context)).into_response()
+    }
+}
+
+impl<E> From<E> for Error
+where
+    E: Into<color_eyre::eyre::Error>,
+{
+    fn from(error: E) -> Self {
+        Error {
+            context: Default::default(),
+            inner: Some(error.into()),
+        }
+    }
+}
+
+pub trait ResultExt<T>
+where
+    Self: Sized,
+{
+    fn with_context(self, status: StatusCode, message: &str) -> Result<T> {
+        self.with_full_context(status, message, &None)
+    }
+
+    fn with_full_context(
+        self,
+        status: StatusCode,
+        message: &str,
+        detail: &Option<String>,
+    ) -> Result<T>;
+}
+
+impl<T, E> ResultExt<T> for std::result::Result<T, E>
+where
+    E: Into<color_eyre::eyre::Error>,
+{
+    fn with_full_context(
+        self,
+        status: StatusCode,
+        message: &str,
+        detail: &Option<String>,
+    ) -> Result<T> {
+        self.map_err(|error| Error {
+            context: Context {
+                status,
+                message: message.to_string(),
+                detail: detail.clone(),
+            },
+            inner: Some(error.into()),
+        })
+    }
+}
+
+pub trait OptionExt<T>
+where
+    Self: Sized,
+{
+    fn with_context(self, status: StatusCode, message: &str) -> Result<T> {
+        self.with_full_context(status, message, &None)
+    }
+
+    fn with_full_context(
+        self,
+        status: StatusCode,
+        message: &str,
+        detail: &Option<String>,
+    ) -> Result<T>;
+}
+
+impl<T> OptionExt<T> for Option<T> {
+    fn with_full_context(
+        self,
+        status: StatusCode,
+        message: &str,
+        detail: &Option<String>,
+    ) -> Result<T> {
+        self.ok_or_else(|| Error {
+            context: Context {
+                status,
+                message: message.to_string(),
+                detail: detail.clone(),
+            },
+            inner: None,
+        })
+    }
+}
+
+#[macro_export]
+macro_rules! bail {
+    ($status:expr, $fmt:expr $(, $args:expr)* $(,)?) => {
+        return Err($crate::error::ApiError {
+            context: $crate::error::Context {
+                status: $status,
+                message: format!($fmt $(, $args)*),
+                detail: None,
+            },
+            inner: Some(color_eyre::eyre::eyre!($fmt $(, $args)*))
+        });
+    };
+}
+
+#[macro_export]
+macro_rules! ensure {
+    ($cond:expr, $status:expr, $fmt:expr $(, $args:expr)* $(,)?) => {
+        if !$cond {
+            return Err($crate::error::Err {
+                context: $crate::error::Context {
+                    status: $status,
+                    message: format!($fmt $(, $args)*),
+                    detail: None,
+                },
+                inner: Some(color_eyre::eyre::eyre!($fmt $(, $args)*))
+            });
+        }
+    };
 }
