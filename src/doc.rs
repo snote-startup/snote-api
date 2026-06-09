@@ -7,8 +7,8 @@ use utoipa::{
 };
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::feature::auth::handler as auth;
-use crate::{error::Error, shared::ApiState};
+use crate::feature::{auth::handler as auth, project::handler as project};
+use crate::{error::Error, shared::ApiState, shared::health};
 
 struct SecurityAddon;
 
@@ -31,19 +31,21 @@ impl Modify for SecurityAddon {
 #[derive(OpenApi)]
 #[openapi(
     paths(
+        health::health,
+
         auth::register,
         auth::login,
         auth::refresh,
         auth::me,
 
-        // project::handler::create,
-        // project::handler::get_by_account,
-        // project::handler::get,
-        // project::handler::update,
-        // project::handler::upload_audio,
-        // project::handler::get_transcript,
-        // project::handler::get_chat_messages,
-        // project::handler::chat
+        project::create,
+        project::get_by_account,
+        project::get,
+        project::update,
+        project::create_transcript,
+        project::get_transcript,
+        project::chat,
+        project::get_chat_history,
     ),
     components(schemas(Error,)),
     modifiers(&SecurityAddon),

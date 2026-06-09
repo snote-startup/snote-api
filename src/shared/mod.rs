@@ -1,4 +1,5 @@
 mod config;
+pub mod health;
 pub mod pagination;
 mod state;
 

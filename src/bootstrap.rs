@@ -1,17 +1,17 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::Router;
+use axum::{Router, routing};
 use tokio::net::TcpListener;
 
 use crate::{
     doc,
     feature::{auth, project},
-    shared::{ApiState, Config},
+    shared::{ApiState, Config, health},
 };
 
 fn build(state: Arc<ApiState>) -> Router {
     Router::new()
-        // .nest("/health", route::health::build())
+        .route("/health", routing::get(health::health))
         .nest("/auth", auth::routes())
         .nest("/project", project::routes())
         // .merge(middleware::cors())

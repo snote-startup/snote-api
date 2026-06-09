@@ -97,37 +97,3 @@ where
         })
     }
 }
-
-pub trait OptionExt<T>
-where
-    Self: Sized,
-{
-    fn with_context(self, status: StatusCode, message: &str) -> Result<T> {
-        self.with_full_context(status, message, &None)
-    }
-
-    fn with_full_context(
-        self,
-        status: StatusCode,
-        message: &str,
-        detail: &Option<String>,
-    ) -> Result<T>;
-}
-
-impl<T> OptionExt<T> for Option<T> {
-    fn with_full_context(
-        self,
-        status: StatusCode,
-        message: &str,
-        detail: &Option<String>,
-    ) -> Result<T> {
-        self.ok_or_else(|| Error {
-            context: ErrorContext {
-                status,
-                message: message.to_string(),
-                detail: detail.clone(),
-            },
-            inner: None,
-        })
-    }
-}
