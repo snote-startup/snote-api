@@ -1,18 +1,13 @@
-use std::sync::Arc;
-
-use axum::{
-    Router,
-    http::{
-        HeaderName, HeaderValue, Method,
-        header::{
-            ACCEPT, ACCESS_CONTROL_ALLOW_HEADERS, ACCESS_CONTROL_ALLOW_METHODS,
-            ACCESS_CONTROL_ALLOW_ORIGIN, AUTHORIZATION, CONTENT_TYPE, ORIGIN,
-        },
+use axum::http::{
+    HeaderName, HeaderValue, Method,
+    header::{
+        ACCEPT, ACCESS_CONTROL_ALLOW_HEADERS, ACCESS_CONTROL_ALLOW_METHODS,
+        ACCESS_CONTROL_ALLOW_ORIGIN, AUTHORIZATION, CONTENT_TYPE, ORIGIN,
     },
 };
 use tower_http::cors::CorsLayer;
 
-use crate::{config::CONFIG, transport::http::state::ApiState};
+use crate::config::CONFIG;
 
 pub const ALLOW_METHODS: [Method; 6] = [
     Method::GET,
@@ -33,19 +28,17 @@ pub const ALLOW_HEADERS: [HeaderName; 7] = [
     ACCESS_CONTROL_ALLOW_HEADERS,
 ];
 
-pub fn cors() -> Router<Arc<ApiState>> {
+pub fn cors() -> CorsLayer {
     let origins: Vec<_> = CONFIG
         .origins
         .split(',')
         .map(|origin| origin.parse::<HeaderValue>().unwrap())
         .collect();
 
-    Router::new().layer(
-        CorsLayer::new()
-            .allow_origin(origins)
-            .allow_headers(ALLOW_HEADERS)
-            .expose_headers(ALLOW_HEADERS)
-            .allow_credentials(true)
-            .allow_methods(ALLOW_METHODS),
-    )
+    CorsLayer::new()
+        .allow_origin(origins)
+        .allow_headers(ALLOW_HEADERS)
+        .expose_headers(ALLOW_HEADERS)
+        .allow_credentials(true)
+        .allow_methods(ALLOW_METHODS)
 }
