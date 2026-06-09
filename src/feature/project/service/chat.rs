@@ -17,7 +17,6 @@ use crate::{
     feature::project::{
         model::{ChatMessage, ChatMessageCursor, ChatRole},
         repository,
-        service::ProjectService,
     },
     shared::pagination::{self, PaginatedVec, PaginationQuery},
 };

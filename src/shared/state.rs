@@ -43,9 +43,13 @@ impl ApiState {
 
             auth_service: AuthService,
 
-            chat_service: ChatService::new(&config.gemini_api_key, config.chat_context_transcript_size, config.chat_context_history_size)?,
+            chat_service: ChatService::new(
+                &config.gemini_api_key,
+                config.chat_context_transcript_size,
+                config.chat_context_history_size,
+            )?,
 
-            project_service: ProjectService
+            project_service: ProjectService,
         })
     }
 }

@@ -4,10 +4,7 @@ use axum::{Json, extract::State};
 
 use crate::{
     error::{Error, Result},
-    feature::{
-        auth::extractor::AccountID,
-        project::{self, model::Project},
-    },
+    feature::{auth::extractor::AccountID, project::model::Project},
     shared::ApiState,
 };
 

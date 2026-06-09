@@ -4,15 +4,11 @@ use axum::{
     Json,
     extract::{Path, Query, State},
 };
-use http::StatusCode;
 use uuid::Uuid;
 
 use crate::{
     error::{Error, Result},
-    feature::{
-        auth::extractor::AccountID,
-        project::{self, model::ChatMessage},
-    },
+    feature::{auth::extractor::AccountID, project::model::ChatMessage},
     shared::{
         ApiState,
         pagination::{PaginatedVec, PaginationQuery},
