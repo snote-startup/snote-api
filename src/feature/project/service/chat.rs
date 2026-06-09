@@ -70,6 +70,7 @@ Style:
 - Do not mention anything outside the transcript.
 "#;
 
+#[tracing::instrument(err(Debug), skip(database))]
 pub async fn chat(
     database: PgPool,
     id: Uuid,
