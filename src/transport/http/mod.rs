@@ -9,6 +9,7 @@ use std::{net::SocketAddr, sync::Arc};
 
 use axum::Router;
 use tokio::net::TcpListener;
+use tower_http::trace::TraceLayer;
 
 use crate::{config::CONFIG, transport::http::state::ApiState};
 
@@ -17,8 +18,8 @@ fn build(state: Arc<ApiState>) -> Router {
         .nest("/health", route::health::build())
         .nest("/auth", route::auth::build())
         .nest("/project", route::project::build())
-        .merge(middleware::cors())
-        .merge(middleware::trace())
+        .layer(middleware::cors())
+        .layer(TraceLayer::new_for_http())
         .merge(doc::build())
         .with_state(state)
 }
