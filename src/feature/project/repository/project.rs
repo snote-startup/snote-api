@@ -40,15 +40,20 @@ pub async fn get_projects_by_account(
     .await
 }
 
-pub async fn get_project(executor: impl PgExecutor<'_>, id: Uuid) -> sqlx::Result<Option<Project>> {
+pub async fn get_project(
+    executor: impl PgExecutor<'_>,
+    account_id: Uuid,
+    id: Uuid,
+) -> sqlx::Result<Option<Project>> {
     sqlx::query_as!(
         Project,
         r#"
             SELECT id, title, description, audio_url
             FROM projects
-            WHERE id = $1
+            WHERE id = $1 and account_id = $2
         "#,
         id,
+        account_id
     )
     .fetch_optional(executor)
     .await
@@ -57,7 +62,6 @@ pub async fn get_project(executor: impl PgExecutor<'_>, id: Uuid) -> sqlx::Resul
 pub async fn update_project(
     executor: impl PgExecutor<'_>,
     id: Uuid,
-    account_id: Uuid,
     title: Option<&str>,
     description: Option<&str>,
     audio_url: Option<&str>,
@@ -66,15 +70,14 @@ pub async fn update_project(
     sqlx::query!(
         r#"
             UPDATE projects
-            SET title = COALESCE($3, title),
-                description = COALESCE($4, description),
-                audio_url = COALESCE($5, audio_url),
-                transcript_ai_id = COALESCE($6, transcript_ai_id),
+            SET title = COALESCE($2, title),
+                description = COALESCE($3, description),
+                audio_url = COALESCE($4, audio_url),
+                transcript_ai_id = COALESCE($5, transcript_ai_id),
                 updated_at = now()
-            WHERE id = $1 AND account_id = $2
+            WHERE id = $1
         "#,
         id,
-        account_id,
         title,
         description,
         audio_url,

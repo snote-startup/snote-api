@@ -2,7 +2,7 @@ pub mod extractor;
 pub mod handler;
 pub mod model;
 mod repository;
-pub mod routes;
+mod routes;
 pub mod service;
 
 pub use routes::*;

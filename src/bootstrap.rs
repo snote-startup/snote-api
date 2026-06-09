@@ -5,7 +5,7 @@ use tokio::net::TcpListener;
 
 use crate::{
     doc,
-    feature::auth,
+    feature::{auth, project},
     shared::{ApiState, Config},
 };
 
@@ -13,7 +13,7 @@ fn build(state: Arc<ApiState>) -> Router {
     Router::new()
         // .nest("/health", route::health::build())
         .nest("/auth", auth::routes())
-        // .nest("/project", route::project::build())
+        .nest("/project", project::routes())
         // .merge(middleware::cors())
         // .merge(middleware::trace())
         .merge(doc::build())

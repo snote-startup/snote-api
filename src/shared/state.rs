@@ -1,7 +1,10 @@
 use sqlx::PgPool;
 
 use crate::{
-    feature::auth::service::{AuthService, PartialTokenService, TokenService},
+    feature::{
+        auth::service::{AuthService, PartialTokenService, TokenService},
+        project::service::{ChatService, ProjectService},
+    },
     infra::{storage::S3Client, transcript::AssemblyAIClient},
     shared::Config,
 };
@@ -14,6 +17,8 @@ pub struct ApiState {
 
     pub token_service: TokenService,
     pub auth_service: AuthService,
+    pub chat_service: ChatService,
+    pub project_service: ProjectService,
 }
 
 impl ApiState {
@@ -37,6 +42,10 @@ impl ApiState {
             },
 
             auth_service: AuthService,
+
+            chat_service: ChatService::new(&config.gemini_api_key, config.chat_context_transcript_size, config.chat_context_history_size)?,
+
+            project_service: ProjectService
         })
     }
 }

@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::feature::project::model::TranscriptSegment;
 
-pub async fn create_transcript(
+pub async fn create_transcript_segments(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
     speakers: &[String],
@@ -37,7 +37,7 @@ pub async fn create_transcript(
     Ok(())
 }
 
-pub async fn get_transcript(
+pub async fn get_transcript_segments(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
 ) -> sqlx::Result<Vec<TranscriptSegment>> {
