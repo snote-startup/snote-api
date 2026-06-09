@@ -1,12 +1,10 @@
-use std::fmt::Write;
-
 use futures::{Stream, StreamExt, TryStreamExt};
 use pgvector::Vector;
-use rig_core::message::Message;
 use rig_core::{
-    agent::MultiTurnStreamItem,
+    agent::{Agent, MultiTurnStreamItem},
     client::{CompletionClient, EmbeddingsClient},
     embeddings::EmbeddingModel,
+    message::Message,
     providers::gemini,
     streaming::{StreamedAssistantContent, StreamingChat},
 };
@@ -15,8 +13,12 @@ use tokio::sync::mpsc;
 use uuid::Uuid;
 
 use crate::{
-    config::CONFIG,
-    feature::project::{model::ChatRole, repository},
+    error::Result,
+    feature::project::{
+        model::{ChatMessage, ChatMessageCursor, ChatRole},
+        repository,
+    },
+    shared::pagination::{self, PaginatedVec, PaginationQuery},
 };
 
 const SYSTEM_PROMPT: &str = r#"
@@ -70,112 +72,172 @@ Style:
 - Do not mention anything outside the transcript.
 "#;
 
-#[tracing::instrument(err(Debug), skip(database))]
-pub async fn chat(
-    database: PgPool,
-    id: Uuid,
-    prompt: String,
-) -> color_eyre::Result<impl Stream<Item = color_eyre::Result<String>>> {
-    let client = gemini::Client::new(&CONFIG.gemini_api_key)?;
-
-    let completed_prompt = build_completed_prompt(&database, &client, id, &prompt).await?;
-
-    let history = get_history(&database, id).await?;
-
-    let agent = client
-        .agent(gemini::completion::GEMINI_3_FLASH_PREVIEW)
-        .preamble(SYSTEM_PROMPT)
-        .build();
-    let stream = agent.stream_chat(completed_prompt, history).await;
-
-    let (tx, mut rx) = mpsc::unbounded_channel::<String>();
-    tokio::spawn(async move {
-        let Some(response) = rx.recv().await else {
-            tracing::error!("No response from llm");
-            return;
-        };
-
-        if let Err(error) = repository::create_chat_messages(
-            &database,
-            id,
-            &[ChatRole::User, ChatRole::Assistant],
-            &[prompt, response],
-        )
-        .await
-        {
-            tracing::error!(?error, "Failed to update history");
-        }
-    });
-
-    let stream = stream
-        .inspect_ok(move |chunk| {
-            if let MultiTurnStreamItem::FinalResponse(final_response) = chunk {
-                let response = final_response.response();
-                let _ = tx.send(response.to_string());
-            }
-        })
-        .filter_map(|item| async move {
-            match item {
-                Ok(MultiTurnStreamItem::StreamAssistantItem(StreamedAssistantContent::Text(
-                    text,
-                ))) => Some(Ok(text.text)),
-                Err(error) => Some(Err(color_eyre::eyre::Error::from(error))),
-                _ => None,
-            }
-        });
-    Ok(stream)
+pub struct ChatService {
+    pub embedding_model: gemini::EmbeddingModel,
+    pub agent: Agent<gemini::CompletionModel>,
+    pub context_transcript_size: u32,
+    pub context_history_size: u32,
 }
 
-async fn build_completed_prompt(
-    database: &PgPool,
-    client: &gemini::Client,
-    id: Uuid,
-    prompt: &str,
-) -> color_eyre::Result<String> {
-    let embedding_client = client.embedding_model(gemini::EMBEDDING_001);
+impl ChatService {
+    #[tracing::instrument(err(Debug))]
+    pub fn new(
+        api_key: &str,
+        context_transcript_size: u32,
+        context_history_size: u32,
+    ) -> color_eyre::Result<Self> {
+        let client = gemini::Client::new(api_key)?;
 
-    let embedding = embedding_client.embed_text(prompt).await?.vec;
-    let embedding: Vec<_> = embedding.into_iter().map(|x| x as f32).collect();
-    let embedding = Vector::from(embedding);
+        let embedding_model = client.embedding_model(gemini::EMBEDDING_001);
 
-    let segments = repository::get_top_k_transcript_segments(
-        database,
-        id,
-        &embedding,
-        CONFIG.chat_context_transcript_size,
-    )
-    .await?;
-    let mut context = String::new();
-    for segment in &segments {
-        writeln!(&mut context, "[segment_id={}]", segment.id).unwrap();
-        writeln!(&mut context, "speaker={}", segment.speaker).unwrap();
-        writeln!(&mut context, "text={}", segment.text).unwrap();
-        writeln!(&mut context, "start={}", segment.start).unwrap();
-        writeln!(&mut context, "end={}", segment.end).unwrap();
-        context.push('\n');
+        let agent = client
+            .agent(gemini::completion::GEMINI_3_FLASH_PREVIEW)
+            .preamble(SYSTEM_PROMPT)
+            .build();
+
+        Ok(Self {
+            embedding_model,
+            agent,
+            context_transcript_size,
+            context_history_size,
+        })
     }
 
-    Ok(format!(
-        r#"
-<context>
+    #[tracing::instrument(err(Debug), skip(self, db))]
+    pub async fn get_history(
+        &self,
+
+        db: &PgPool,
+
+        project_id: Uuid,
+        query: PaginationQuery,
+    ) -> Result<PaginatedVec<ChatMessage>> {
+        let mut data = match query.cursor {
+            Some(cursor) => {
+                let cursor: ChatMessageCursor = pagination::decode(&cursor)?;
+                repository::get_paginated_chat_messages(db, project_id, cursor, query.limit + 1)
+                    .await
+            }
+            None => repository::get_chat_messages(db, project_id, query.limit + 1).await,
+        }?;
+        let next_cursor = if data.len() > query.limit as usize {
+            let last = data.pop().unwrap();
+            Some(pagination::encode(&ChatMessageCursor {
+                id: last.id,
+                created_at: last.created_at,
+            })?)
+        } else {
+            None
+        };
+
+        Ok(PaginatedVec { data, next_cursor })
+    }
+
+    #[tracing::instrument(err(Debug), skip(self, db))]
+    pub async fn chat(
+        &self,
+
+        db: PgPool,
+
+        project_id: Uuid,
+        prompt: String,
+    ) -> Result<impl Stream<Item = color_eyre::eyre::Result<String>> + use<>> {
+        let prompt = format!(
+            r#"
+<transcript_segments>
 {}
-</context>
+</transcript_segments>
 {}
         "#,
-        context, prompt
-    ))
-}
+            self.get_context_segments(&db, project_id, &prompt).await?,
+            prompt
+        );
+        let history = self.get_context_history(&db, project_id).await?;
 
-async fn get_history(database: &PgPool, id: Uuid) -> color_eyre::Result<Vec<Message>> {
-    let history =
-        repository::get_chat_messages(database, id, CONFIG.chat_context_history_size).await?;
-    let history: Vec<_> = history
-        .into_iter()
-        .map(|m| match m.role {
-            ChatRole::User => Message::user(m.content),
-            ChatRole::Assistant => Message::assistant(m.content),
-        })
-        .collect();
+        let stream = self.agent.stream_chat(&prompt, history).await;
 
-    Ok(history)
+        let (tx, mut rx) = mpsc::unbounded_channel::<String>();
+        tokio::spawn(async move {
+            let Some(response) = rx.recv().await else {
+                tracing::error!("No response from llm");
+                return;
+            };
+
+            if let Err(error) = repository::create_chat_messages(
+                &db,
+                project_id,
+                &[ChatRole::User, ChatRole::Assistant],
+                &[prompt, response],
+            )
+            .await
+            {
+                tracing::error!(?error, "Failed to update history");
+            }
+        });
+
+        let stream = stream
+            .inspect_ok(move |chunk| {
+                if let MultiTurnStreamItem::FinalResponse(final_response) = chunk {
+                    let response = final_response.response();
+                    let _ = tx.send(response.to_string());
+                }
+            })
+            .filter_map(|item| async move {
+                match item {
+                    Ok(MultiTurnStreamItem::StreamAssistantItem(
+                        StreamedAssistantContent::Text(text),
+                    )) => Some(Ok(text.text)),
+                    Err(error) => Some(Err(error.into())),
+                    _ => None,
+                }
+            });
+        Ok(stream)
+    }
+
+    async fn get_context_segments(
+        &self,
+
+        db: &PgPool,
+
+        project_id: Uuid,
+        prompt: &str,
+    ) -> color_eyre::Result<String> {
+        let embedding = self.embedding_model.embed_text(prompt).await?.vec;
+        let embedding: Vec<_> = embedding.into_iter().map(|x| x as f32).collect();
+        let embedding = Vector::from(embedding);
+
+        let segments = repository::get_top_k_transcript_segments(
+            db,
+            project_id,
+            &embedding,
+            self.context_transcript_size,
+        )
+        .await?;
+        let mut context = String::new();
+        for segment in segments {
+            context.push_str(&segment.to_string());
+            context.push('\n');
+        }
+
+        Ok(context)
+    }
+
+    async fn get_context_history(
+        &self,
+
+        db: &PgPool,
+
+        project_id: Uuid,
+    ) -> color_eyre::Result<Vec<Message>> {
+        let history =
+            repository::get_chat_messages(db, project_id, self.context_history_size).await?;
+
+        Ok(history
+            .into_iter()
+            .map(|m| match m.role {
+                ChatRole::User => Message::user(m.content),
+                ChatRole::Assistant => Message::assistant(m.content),
+            })
+            .collect())
+    }
 }

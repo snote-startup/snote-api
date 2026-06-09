@@ -4,10 +4,12 @@ use tracing::level_filters::LevelFilter;
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
-mod config;
+mod bootstrap;
+mod doc;
+mod error;
 mod feature;
-mod transport;
-mod util;
+mod infra;
+mod shared;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
@@ -29,5 +31,5 @@ async fn main() -> color_eyre::Result<()> {
         .with(tracing_subscriber::fmt::layer().with_thread_ids(false))
         .init();
 
-    transport::http::run().await
+    bootstrap::run().await
 }
