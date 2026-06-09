@@ -14,12 +14,13 @@ use tower_http::cors::CorsLayer;
 
 use crate::{config::CONFIG, transport::http::state::ApiState};
 
-pub const ALLOW_METHODS: [Method; 5] = [
+pub const ALLOW_METHODS: [Method; 6] = [
     Method::GET,
     Method::POST,
     Method::DELETE,
     Method::PATCH,
     Method::PUT,
+    Method::OPTIONS,
 ];
 
 pub const ALLOW_HEADERS: [HeaderName; 7] = [
