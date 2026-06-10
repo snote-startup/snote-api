@@ -18,6 +18,16 @@ const POLL_INTERVAL: Duration = Duration::from_secs(1);
 
 pub struct AssemblyAIClient {
     pub api_key: String,
+    pub http: reqwest::Client,
+}
+
+impl AssemblyAIClient {
+    pub fn new(api_key: &str) -> Self {
+        AssemblyAIClient {
+            api_key: api_key.to_string(),
+            http: reqwest::Client::new(),
+        }
+    }
 }
 
 impl AssemblyAIClient {
@@ -30,7 +40,8 @@ impl AssemblyAIClient {
             speaker_labels: true,
             language_detection: true,
         };
-        let resp: CreateTranscriptResponse = reqwest::Client::new()
+        let resp: CreateTranscriptResponse = self
+            .http
             .post(url)
             .header(AUTHORIZATION, &self.api_key)
             .json(&req)
