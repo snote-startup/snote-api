@@ -5,8 +5,6 @@ use std::time::Duration;
 use http::header::AUTHORIZATION;
 use tokio::time::sleep;
 
-use crate::error::Result;
-
 pub use dto::Segment;
 use dto::{
     CreateTranscriptRequest, CreateTranscriptResponse, GetTranscriptResponse, SpeechModel,
@@ -32,7 +30,7 @@ impl AssemblyAIClient {
 
 impl AssemblyAIClient {
     #[tracing::instrument(err(Debug), skip(self))]
-    pub async fn create_transcript(&self, audio_url: &str) -> Result<String> {
+    pub async fn create_transcript(&self, audio_url: &str) -> color_eyre::Result<String> {
         let url = format!("{}/v2/transcript", API_URL);
         let req = CreateTranscriptRequest {
             audio_url,
@@ -54,7 +52,7 @@ impl AssemblyAIClient {
     }
 
     #[tracing::instrument(err(Debug), skip(self))]
-    pub async fn get_transcript(&self, id: &str) -> Result<Vec<Segment>> {
+    pub async fn get_transcript(&self, id: &str) -> color_eyre::Result<Vec<Segment>> {
         let url = format!("{}/v2/transcript/{}", API_URL, id);
         loop {
             let resp: GetTranscriptResponse = reqwest::Client::new()
