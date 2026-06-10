@@ -29,7 +29,7 @@ impl ApiState {
             s3_client: S3Client::new(config.aws_endpoint_url.clone(), config.s3_bucket.clone())
                 .await,
 
-            assembly_ai_client: AssemblyAIClient::new(&config.assembly_ai_api_key.to_string()),
+            assembly_ai_client: AssemblyAIClient::new(config.assembly_ai_api_key),
 
             token_service: TokenService {
                 access: PartialTokenService::new(&config.jwt_secret, config.jwt_expired_in),

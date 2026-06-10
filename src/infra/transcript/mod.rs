@@ -13,18 +13,18 @@ use dto::{
     TranscriptStatus,
 };
 
-const ASSEMBLY_AI_URL: &str = "https://api.assemblyai.com";
+const API_URL: &str = "https://api.assemblyai.com";
 const POLL_INTERVAL: Duration = Duration::from_secs(1);
 
 pub struct AssemblyAIClient {
-    pub api_key: String,
-    pub http: reqwest::Client,
+    api_key: String,
+    http: reqwest::Client,
 }
 
 impl AssemblyAIClient {
-    pub fn new(api_key: &str) -> Self {
+    pub fn new(api_key: String) -> Self {
         AssemblyAIClient {
-            api_key: api_key.to_string(),
+            api_key,
             http: reqwest::Client::new(),
         }
     }
@@ -33,7 +33,7 @@ impl AssemblyAIClient {
 impl AssemblyAIClient {
     #[tracing::instrument(err(Debug), skip(self))]
     pub async fn create_transcript(&self, audio_url: &str) -> Result<String> {
-        let url = format!("{}/v2/transcript", ASSEMBLY_AI_URL);
+        let url = format!("{}/v2/transcript", API_URL);
         let req = CreateTranscriptRequest {
             audio_url,
             speech_models: &[SpeechModel::Universal3Pro, SpeechModel::Universal2],
@@ -55,7 +55,7 @@ impl AssemblyAIClient {
 
     #[tracing::instrument(err(Debug), skip(self))]
     pub async fn get_transcript(&self, id: &str) -> Result<Vec<Segment>> {
-        let url = format!("{}/v2/transcript/{}", ASSEMBLY_AI_URL, id);
+        let url = format!("{}/v2/transcript/{}", API_URL, id);
         loop {
             let resp: GetTranscriptResponse = reqwest::Client::new()
                 .get(&url)
