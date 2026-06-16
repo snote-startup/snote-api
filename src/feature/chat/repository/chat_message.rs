@@ -1,7 +1,7 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::feature::project::model::{ChatMessage, ChatMessageCursor, ChatRole};
+use crate::feature::chat::model::{ChatMessage, ChatMessageCursor, ChatRole};
 
 pub async fn create_chat_messages(
     executor: impl PgExecutor<'_>,

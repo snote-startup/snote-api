@@ -3,7 +3,8 @@ use sqlx::PgPool;
 use crate::{
     feature::{
         auth::service::{AuthService, PartialTokenService, TokenService},
-        project::service::{ChatService, ProjectService},
+        chat::service::ChatService,
+        project::service::ProjectService,
     },
     infra::{storage::S3Client, transcript::AssemblyAIClient},
     shared::Config,
