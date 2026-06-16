@@ -25,7 +25,7 @@ pub struct Request {
 #[utoipa::path(
     post,
     operation_id = "project::chat",
-    tag = "Project",
+    tags = ["Chat", "Project"],
     path = "/project/{id}/chat",
     params(
         (

@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::{
     error::{Error, Result},
-    feature::{auth::extractor::AccountID, project::model::ChatMessage},
+    feature::{auth::extractor::AccountID, chat::model::ChatMessage},
     shared::{
         ApiState,
         pagination::{PaginatedVec, PaginationQuery},
@@ -17,8 +17,8 @@ use crate::{
 
 #[utoipa::path(
     get,
-    operation_id = "project::get_history",
-    tag = "Project",
+    operation_id = "project::get_chat_history",
+    tags = ["Chat", "Project"],
     path = "/project/{id}/chat/history",
     params(
         (
@@ -64,7 +64,7 @@ use crate::{
         )
     )
 )]
-pub async fn get_chat_history(
+pub async fn get_history(
     State(state): State<Arc<ApiState>>,
     AccountID(account_id): AccountID,
     Path(id): Path<Uuid>,

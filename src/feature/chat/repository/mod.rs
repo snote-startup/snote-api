@@ -1,5 +1,5 @@
-mod project;
+mod chat_message;
 mod transcript_segment;
 
-pub use project::*;
+pub use chat_message::*;
 pub use transcript_segment::*;

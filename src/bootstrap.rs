@@ -6,7 +6,7 @@ use tower_http::trace::TraceLayer;
 
 use crate::{
     doc,
-    feature::{auth, project},
+    feature::{auth, chat, project},
     shared::{ApiState, Config, health, middleware},
 };
 
@@ -20,6 +20,7 @@ pub async fn run() -> color_eyre::Result<()> {
         .route("/health", routing::get(health::health))
         .merge(auth::routes())
         .merge(project::routes())
+        .merge(chat::routes())
         .layer(middleware::cors(&origins))
         .layer(TraceLayer::new_for_http())
         .merge(doc::build())

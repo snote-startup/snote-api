@@ -1,5 +1,3 @@
-mod chat;
-
 use aws_sdk_s3::primitives::ByteStream;
 use http::StatusCode;
 use sqlx::PgPool;
@@ -13,8 +11,6 @@ use crate::{
     },
     infra::{storage::S3Client, transcript::AssemblyAIClient},
 };
-
-pub use chat::*;
 
 #[derive(Clone, Copy)]
 pub struct ProjectService;

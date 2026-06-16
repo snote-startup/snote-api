@@ -18,9 +18,4 @@ pub fn routes() -> Router<Arc<ApiState>> {
             "/project/{id}/transcript",
             routing::get(handler::get_transcript),
         )
-        .route("/project/{id}/chat", routing::post(handler::chat))
-        .route(
-            "/project/{id}/chat/history",
-            routing::get(handler::get_chat_history),
-        )
 }
