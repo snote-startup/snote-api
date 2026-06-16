@@ -18,8 +18,8 @@ pub async fn run() -> color_eyre::Result<()> {
     let state = Arc::new(ApiState::new(config).await?);
     let app = Router::new()
         .route("/health", routing::get(health::health))
-        .nest("/auth", auth::routes())
-        .nest("/project", project::routes())
+        .merge(auth::routes())
+        .merge(project::routes())
         .layer(middleware::cors(&origins))
         .layer(TraceLayer::new_for_http())
         .merge(doc::build())
