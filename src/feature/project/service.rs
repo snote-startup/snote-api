@@ -65,22 +65,46 @@ impl ProjectService {
         Ok(())
     }
 
-    #[tracing::instrument(err(Debug), skip(self, db, s3_client, assembly_ai_client))]
-    pub async fn create_transcript(
+    #[tracing::instrument(err(Debug), skip(self, db, s3_client))]
+    pub async fn upload_audio(
         &self,
 
         db: &PgPool,
         s3_client: &S3Client,
-        assembly_ai_client: &AssemblyAIClient,
 
         account_id: Uuid,
         id: Uuid,
         content: ByteStream,
     ) -> Result<()> {
-        let _ = repository::get_project(db, account_id, id).await?;
+        let _ = self.get(db, account_id, id).await?;
 
         let key = format!("{}/audio", id);
         let audio_url = s3_client.upload(key, content).await?;
+
+        repository::update_project(db, id, None, None, Some(&audio_url), None).await?;
+
+        Ok(())
+    }
+
+    #[tracing::instrument(err(Debug), skip(self, db, assembly_ai_client))]
+    pub async fn create_transcript(
+        &self,
+
+        db: &PgPool,
+        assembly_ai_client: &AssemblyAIClient,
+
+        account_id: Uuid,
+        id: Uuid,
+    ) -> Result<()> {
+        let project = self.get(db, account_id, id).await?;
+        let Some(audio_url) = project.audio_url.clone() else {
+            return Err(ErrorContext {
+                status: StatusCode::NOT_FOUND,
+                message: "No audio file found in project".into(),
+                ..Default::default()
+            }
+            .into());
+        };
 
         let transcript_ai_id = assembly_ai_client.create_transcript(&audio_url).await?;
         let transcript = assembly_ai_client.get_transcript(&transcript_ai_id).await?;
@@ -97,7 +121,7 @@ impl ProjectService {
             id,
             None,
             None,
-            Some(&audio_url),
+            None,
             Some(&transcript_ai_id),
         )
         .await?;

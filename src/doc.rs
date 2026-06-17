@@ -42,6 +42,7 @@ impl Modify for SecurityAddon {
         project::get_by_account,
         project::get,
         project::update,
+        project::upload_audio,
         project::create_transcript,
         project::get_transcript,
 

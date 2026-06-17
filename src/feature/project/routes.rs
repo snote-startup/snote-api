@@ -10,6 +10,7 @@ pub fn routes() -> Router<Arc<ApiState>> {
         .route("/project/", routing::get(handler::get_by_account))
         .route("/project/{id}", routing::get(handler::get))
         .route("/project/{id}", routing::patch(handler::update))
+        .route("/project/{id}/audio", routing::patch(handler::upload_audio))
         .route(
             "/project/{id}/transcript",
             routing::post(handler::create_transcript),

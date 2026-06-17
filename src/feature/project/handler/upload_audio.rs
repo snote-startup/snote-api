@@ -1,19 +1,19 @@
 use std::sync::Arc;
 
-use axum::extract::{Path, State};
+use axum::extract::{Multipart, Path, State};
 use http::StatusCode;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::{
-    error::{Error, Result},
+    error::{Error, ErrorContext, Result, ResultExt},
     feature::auth::extractor::AccountID,
     shared::ApiState,
 };
 
 #[allow(unused)]
 #[derive(Debug, ToSchema)]
-#[schema(as = project::create_transcript::Request)]
+#[schema(as = project::upload_audio::Request)]
 pub struct Request {
     #[schema(
         value_type = String,
@@ -22,12 +22,12 @@ pub struct Request {
     pub audio: String,
 }
 
-#[tracing::instrument(err(Debug), skip(state))]
+#[tracing::instrument(err(Debug), skip(state, multipart))]
 #[utoipa::path(
     post,
-    operation_id = "project::create_transcript",
+    operation_id = "project::upload_audio",
     tag = "Project",
-    path = "/project/{id}/transcript",
+    path = "/project/{id}/upload",
     params(
         (
             "id" = Uuid,
@@ -65,14 +65,29 @@ pub struct Request {
     )
 )]
 // TODO: check file type
-pub async fn create_transcript(
+pub async fn upload_audio(
     State(state): State<Arc<ApiState>>,
     AccountID(account_id): AccountID,
     Path(id): Path<Uuid>,
+    mut multipart: Multipart,
 ) -> Result<StatusCode> {
+    let Some(field) = multipart
+        .next_field()
+        .await
+        .with_context(StatusCode::BAD_REQUEST, "Payload is not multipart")?
+    else {
+        return Err(ErrorContext {
+            status: StatusCode::BAD_REQUEST,
+            message: "No audio file provided".to_string(),
+            ..Default::default()
+        }
+        .into());
+    };
+    let content = field.bytes().await?;
+
     state
         .project_service
-        .create_transcript(&state.db, &state.assembly_ai_client, account_id, id)
+        .upload_audio(&state.db, &state.s3_client, account_id, id, content.into())
         .await?;
 
     Ok(StatusCode::NO_CONTENT)
