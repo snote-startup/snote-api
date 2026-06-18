@@ -29,6 +29,6 @@ tower-http = { version = "0.6.11", features = ["cors", "trace"] }
 tracing = "0.1.44"
 tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.23", features = ["fmt", "chrono", "env-filter"] }
-utoipa = { version = "5.5.0", features = ["uuid"] }
+utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 uuid = { version = "1.23.1", features = ["v4", "fast-rng", "serde"] }
