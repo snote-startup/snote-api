@@ -1,12 +1,11 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{
-    error::Result,
-    feature::{
-        project::service::ProjectService,
-        task::model::{TaskPriority, TaskStatus},
-    },
+use crate::{error::Result, feature::project::service::ProjectService};
+
+use super::{
+    model::{Task, TaskPriority, TaskStatus},
+    repository,
 };
 
 pub struct TaskService;
@@ -24,7 +23,9 @@ impl TaskService {
     }
 
     pub async fn get_by_project(&self, db: &PgPool, project_id: Uuid) -> Result<Vec<Task>> {
-        todo!()
+        let tasks = repository::get_tasks_by_project(db, project_id).await?;
+
+        Ok(tasks)
     }
 
     pub async fn update(
@@ -37,10 +38,14 @@ impl TaskService {
         priority: Option<TaskPriority>,
         content: Option<&str>,
     ) -> Result<()> {
-        todo!()
+        repository::update_task(db, id, status, priority, content).await?;
+
+        Ok(())
     }
 
     pub async fn delete(&self, db: &PgPool, id: Uuid) -> Result<()> {
-        todo!()
+        repository::delete_task(db, id).await?;
+
+        Ok(())
     }
 }
