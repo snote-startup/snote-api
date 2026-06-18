@@ -31,22 +31,23 @@ pub struct Request {
     pub content: Option<String>,
 }
 
+#[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     patch,
     operation_id = "task::update",
-    tags = ["Task", "Project"],
-    path = "/project/{id}/task",
+    tag = "Task",
+    path = "/task/{id}",
     params(
         (
             "id" = Uuid,
             Path,
-            description = "Project id",
+            description = "Task id",
             example = "550e8400-e29b-41d4-a716-446655440000"
         )
     ),
     request_body(
         content = Request,
-        description = "Fields to update. Omitted fields are left unchanged."
+        description = "Fields to update. Any omitted field remains unchanged."
     ),
     security(("jwt_token" = [])),
     responses(
@@ -56,7 +57,7 @@ pub struct Request {
         ),
         (
             status = 400,
-            description = "Invalid project id or task data",
+            description = "Invalid task id or update data",
             body = Error
         ),
         (
@@ -66,7 +67,7 @@ pub struct Request {
         ),
         (
             status = 404,
-            description = "Project or task not found",
+            description = "Task not found",
             body = Error
         ),
         (
@@ -79,14 +80,14 @@ pub struct Request {
 pub async fn update(
     State(state): State<Arc<ApiState>>,
     _: AccountID,
-    Path(project_id): Path<Uuid>,
+    Path(id): Path<Uuid>,
     Json(req): Json<Request>,
 ) -> Result<StatusCode> {
     state
         .task_svc
         .update(
             &state.db,
-            project_id,
+            id,
             req.status,
             req.priority,
             req.content.as_deref(),

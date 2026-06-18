@@ -13,13 +13,13 @@ use crate::{
 #[utoipa::path(
     delete,
     operation_id = "task::delete",
-    tags = ["Task", "Project"],
-    path = "/project/{id}/task",
+    tag = "Task",
+    path = "/task/{id}",
     params(
         (
             "id" = Uuid,
             Path,
-            description = "Project id",
+            description = "Task id",
             example = "550e8400-e29b-41d4-a716-446655440000"
         )
     ),
@@ -31,7 +31,7 @@ use crate::{
         ),
         (
             status = 400,
-            description = "Invalid project id",
+            description = "Invalid task id",
             body = Error
         ),
         (
@@ -51,12 +51,12 @@ use crate::{
         )
     )
 )]
-pub async fn update(
+pub async fn delete(
     State(state): State<Arc<ApiState>>,
     _: AccountID,
-    Path(project_id): Path<Uuid>,
+    Path(id): Path<Uuid>,
 ) -> Result<StatusCode> {
-    state.task_svc.delete(&state.db, project_id).await?;
+    state.task_svc.delete(&state.db, id).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
