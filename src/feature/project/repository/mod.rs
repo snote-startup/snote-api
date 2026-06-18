@@ -1,5 +1,5 @@
 mod project;
-mod transcript_segment;
+mod transcript;
 
 pub use project::*;
-pub use transcript_segment::*;
+pub use transcript::*;

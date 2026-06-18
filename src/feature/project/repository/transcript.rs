@@ -1,3 +1,4 @@
+use pgvector::Vector;
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
@@ -49,6 +50,31 @@ pub async fn get_transcript_segments(
             ORDER BY start_time, end_time
         "#,
         project_id
+    )
+    .fetch_all(executor)
+    .await
+}
+
+pub async fn get_top_k_transcript_segments(
+    executor: impl PgExecutor<'_>,
+    project_id: Uuid,
+    embedding: Vec<f32>,
+    k: u32,
+) -> sqlx::Result<Vec<TranscriptSegment>> {
+    let embedding = Vector::from(embedding);
+
+    sqlx::query_as!(
+        TranscriptSegment,
+        r#"
+            SELECT id, speaker, content as "text:_", start_time as "start:_", end_time as "end:_"
+            FROM transcript_segments
+            WHERE project_id = $1
+            ORDER BY embedding <=> $2
+            LIMIT $3
+        "#,
+        project_id,
+        embedding as _,
+        k as i64
     )
     .fetch_all(executor)
     .await

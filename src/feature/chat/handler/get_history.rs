@@ -70,11 +70,9 @@ pub async fn get_history(
     Path(id): Path<Uuid>,
     Query(query): Query<PaginationQuery>,
 ) -> Result<Json<PaginatedVec<ChatMessage>>> {
-    let _ = state.project_service.get(&state.db, account_id, id).await?;
-
     state
-        .chat_service
-        .get_history(&state.db, id, query)
+        .chat_svc
+        .get_history(&state.db, id, account_id, query)
         .await
         .map(Json)
 }

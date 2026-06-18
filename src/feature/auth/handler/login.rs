@@ -62,10 +62,10 @@ pub async fn login(
     Json(request): Json<Request>,
 ) -> Result<(StatusCode, CookieJar, String)> {
     let token_pair = state
-        .auth_service
+        .auth_svc
         .login(
             &state.db,
-            &state.token_service,
+            &state.token_svc,
             &request.email,
             &request.password,
         )

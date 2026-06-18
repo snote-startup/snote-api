@@ -1,23 +1,21 @@
 use std::sync::Arc;
 
-use axum::{
-    Json,
-    extract::{Path, State},
-};
+use axum::extract::{Path, State};
+use http::StatusCode;
 use uuid::Uuid;
 
 use crate::{
     error::{Error, Result},
-    feature::{auth::extractor::AccountID, project::model::Project},
+    feature::auth::extractor::AccountID,
     shared::ApiState,
 };
 
 #[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
-    get,
-    operation_id = "project::get",
-    tag = "Project",
-    path = "/project/{id}",
+    post,
+    operation_id = "project::create_tasks",
+    tags = ["Task", "Project"],
+    path = "/project/{id}/task",
     params(
         (
             "id" = Uuid,
@@ -28,16 +26,23 @@ use crate::{
     ),
     security(("jwt_token" = [])),
     responses(
-        (status = 200, body = Project),
-        (status = 404, description = "Project not found", body = Error),
+        (
+            status = 204,
+            description = "Tasks generated successfully from project content"
+        ),
         (
             status = 400,
-            description = "Invalid project id",
+            description = "Invalid project id or project content cannot be processed",
             body = Error
         ),
         (
             status = 401,
             description = "Unauthorized",
+            body = Error
+        ),
+        (
+            status = 404,
+            description = "Project not found",
             body = Error
         ),
         (
@@ -47,14 +52,15 @@ use crate::{
         )
     )
 )]
-pub async fn get(
+pub async fn create(
     State(state): State<Arc<ApiState>>,
     AccountID(account_id): AccountID,
-    Path(id): Path<Uuid>,
-) -> Result<Json<Project>> {
+    Path(project_id): Path<Uuid>,
+) -> Result<StatusCode> {
     state
-        .project_svc
-        .get(&state.db, account_id, id)
-        .await
-        .map(Json)
+        .task_svc
+        .create(&state.db, &state.project_svc, account_id, project_id)
+        .await?;
+
+    Ok(StatusCode::NO_CONTENT)
 }

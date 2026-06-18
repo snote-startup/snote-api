@@ -18,12 +18,12 @@ const BCRYPT_COST: u32 = 10;
 pub struct AuthService;
 
 impl AuthService {
-    #[tracing::instrument(err(Debug), skip(self, db, token_service))]
+    #[tracing::instrument(err(Debug), skip(self, db, token_svc))]
     pub async fn register(
         &self,
 
         db: &PgPool,
-        token_service: &TokenService,
+        token_svc: &TokenService,
 
         email: &str,
         password: &str,
@@ -32,15 +32,15 @@ impl AuthService {
         let hashed_password = bcrypt::hash(password, BCRYPT_COST)?;
         let id = repository::create_account(db, email, &hashed_password, name).await?;
 
-        token_service.encode(id)
+        token_svc.encode(id)
     }
 
-    #[tracing::instrument(err(Debug), skip(self, db, token_service))]
+    #[tracing::instrument(err(Debug), skip(self, db, token_svc))]
     pub async fn login(
         &self,
 
         db: &PgPool,
-        token_service: &TokenService,
+        token_svc: &TokenService,
 
         email: &str,
         password: &str,
@@ -56,19 +56,19 @@ impl AuthService {
         }
         let id = account.id;
 
-        token_service.encode(id)
+        token_svc.encode(id)
     }
 
-    #[tracing::instrument(err(Debug), skip(self, db, token_service))]
+    #[tracing::instrument(err(Debug), skip(self, db, token_svc))]
     pub async fn me(
         &self,
 
         db: &PgPool,
-        token_service: &TokenService,
+        token_svc: &TokenService,
 
         access_token: &str,
     ) -> Result<MinimalAccount> {
-        let id = token_service.access.decode(access_token)?;
+        let id = token_svc.access.decode(access_token)?;
         let account = repository::get_account(db, id).await?;
 
         Ok(MinimalAccount {
@@ -78,13 +78,13 @@ impl AuthService {
         })
     }
 
-    #[tracing::instrument(err(Debug), skip(self, token_service))]
-    pub fn refresh(&self, token_service: &TokenService, refresh_token: &str) -> Result<TokenPair> {
-        let id = token_service
+    #[tracing::instrument(err(Debug), skip(self, token_svc))]
+    pub fn refresh(&self, token_svc: &TokenService, refresh_token: &str) -> Result<TokenPair> {
+        let id = token_svc
             .refresh
             .decode(refresh_token)
             .with_context(StatusCode::UNAUTHORIZED, "Invalid refresh token")?;
 
-        token_service.encode(id)
+        token_svc.encode(id)
     }
 }

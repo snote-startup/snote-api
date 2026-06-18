@@ -50,6 +50,13 @@ impl ProjectService {
     }
 
     #[tracing::instrument(err(Debug), skip(self, db))]
+    pub async fn assert_existed(&self, db: &PgPool, account_id: Uuid, id: Uuid) -> Result<()> {
+        let _ = self.get(db, account_id, id).await?;
+
+        Ok(())
+    }
+
+    #[tracing::instrument(err(Debug), skip(self, db))]
     pub async fn update(
         &self,
 
@@ -60,30 +67,55 @@ impl ProjectService {
         title: Option<&str>,
         description: Option<&str>,
     ) -> Result<()> {
-        let _ = self.get(db, account_id, id).await?;
+        self.assert_existed(db, account_id, id).await?;
+
         repository::update_project(db, id, title, description, None, None).await?;
         Ok(())
     }
 
-    #[tracing::instrument(err(Debug), skip(self, db, s3_client, assembly_ai_client))]
-    pub async fn create_transcript(
+    #[tracing::instrument(err(Debug), skip(self, db, s3))]
+    pub async fn upload_audio(
         &self,
 
         db: &PgPool,
-        s3_client: &S3Client,
-        assembly_ai_client: &AssemblyAIClient,
+        s3: &S3Client,
 
         account_id: Uuid,
         id: Uuid,
         content: ByteStream,
     ) -> Result<()> {
-        let _ = repository::get_project(db, account_id, id).await?;
+        self.assert_existed(db, account_id, id).await?;
 
         let key = format!("{}/audio", id);
-        let audio_url = s3_client.upload(key, content).await?;
+        let audio_url = s3.upload(key, content).await?;
 
-        let transcript_ai_id = assembly_ai_client.create_transcript(&audio_url).await?;
-        let transcript = assembly_ai_client.get_transcript(&transcript_ai_id).await?;
+        repository::update_project(db, id, None, None, Some(&audio_url), None).await?;
+
+        Ok(())
+    }
+
+    #[tracing::instrument(err(Debug), skip(self, db, assembly_ai))]
+    pub async fn create_transcript(
+        &self,
+
+        db: &PgPool,
+        assembly_ai: &AssemblyAIClient,
+
+        account_id: Uuid,
+        id: Uuid,
+    ) -> Result<()> {
+        let project = self.get(db, account_id, id).await?;
+        let Some(audio_url) = project.audio_url.clone() else {
+            return Err(ErrorContext {
+                status: StatusCode::NOT_FOUND,
+                message: "No audio file found in project".into(),
+                ..Default::default()
+            }
+            .into());
+        };
+
+        let transcript_ai_id = assembly_ai.create_transcript(&audio_url).await?;
+        let transcript = assembly_ai.get_transcript(&transcript_ai_id).await?;
 
         let speakers: Vec<_> = transcript.iter().map(|x| x.speaker.clone()).collect();
         let texts: Vec<_> = transcript.iter().map(|x| x.text.clone()).collect();
@@ -97,7 +129,7 @@ impl ProjectService {
             id,
             None,
             None,
-            Some(&audio_url),
+            None,
             Some(&transcript_ai_id),
         )
         .await?;
@@ -116,6 +148,23 @@ impl ProjectService {
         Ok(())
     }
 
+    pub async fn get_top_k_transcript_segments(
+        &self,
+
+        db: &PgPool,
+
+        account_id: Uuid,
+        id: Uuid,
+        embedding: Vec<f32>,
+        k: u32,
+    ) -> Result<Vec<TranscriptSegment>> {
+        self.assert_existed(db, account_id, id).await?;
+
+        let segments = repository::get_top_k_transcript_segments(db, id, embedding, k).await?;
+
+        Ok(segments)
+    }
+
     #[tracing::instrument(err(Debug), skip(self, db))]
     pub async fn get_transcript(
         &self,
@@ -125,6 +174,8 @@ impl ProjectService {
         account_id: Uuid,
         id: Uuid,
     ) -> Result<Vec<TranscriptSegment>> {
+        self.assert_existed(db, account_id, id).await?;
+
         let transcripts = repository::get_transcript_segments(db, id).await?;
 
         Ok(transcripts)
