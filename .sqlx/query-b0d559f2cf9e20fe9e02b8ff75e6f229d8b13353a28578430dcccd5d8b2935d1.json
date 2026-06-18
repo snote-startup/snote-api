@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO tasks(project_id, priority, content)\n            SELECT * FROM UNNEST(\n                $1::uuid[],\n                $2::task_priority[],\n                $3::text[]\n            )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        {
+          "Custom": {
+            "name": "task_priority[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "task_priority",
+                  "kind": {
+                    "Enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b0d559f2cf9e20fe9e02b8ff75e6f229d8b13353a28578430dcccd5d8b2935d1"
+}
