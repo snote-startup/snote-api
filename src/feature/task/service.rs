@@ -14,10 +14,10 @@ impl TaskService {
     pub async fn create(
         &self,
 
-        db: &PgPool,
-        project_svc: &ProjectService,
+        _db: &PgPool,
+        _project_svc: &ProjectService,
 
-        project_id: Uuid,
+        _project_id: Uuid,
     ) -> Result<()> {
         todo!()
     }

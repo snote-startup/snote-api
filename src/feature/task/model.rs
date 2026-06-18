@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, sqlx::Type, ToSchema, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, sqlx::Type, ToSchema, Clone, Copy)]
 #[sqlx(rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum TaskStatus {
@@ -12,7 +12,7 @@ pub enum TaskStatus {
     Done,
 }
 
-#[derive(Serialize, Deserialize, sqlx::Type, ToSchema, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, sqlx::Type, ToSchema, Clone, Copy)]
 #[sqlx(rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum TaskPriority {

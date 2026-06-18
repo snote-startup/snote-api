@@ -8,16 +8,16 @@ use uuid::Uuid;
 
 use crate::{
     error::{Error, Result},
-    feature::{auth::extractor::AccountID, project::model::TranscriptSegment},
+    feature::{auth::extractor::AccountID, task::model::Task},
     shared::ApiState,
 };
 
 #[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     get,
-    operation_id = "project::get_transcript",
-    tags = ["Transcript", "Project"],
-    path = "/project/{id}/transcript",
+    operation_id = "project::get_task",
+    tags = ["Task", "Project"],
+    path = "/project/{id}/task",
     params(
         (
             "id" = Uuid,
@@ -30,17 +30,17 @@ use crate::{
     responses(
         (
             status = 200,
-            description = "List all transcripts belonging to the project",
-            body = Vec<TranscriptSegment>
-        ),
-        (
-            status = 400,
-            description = "Project with given id does not exist",
-            body = Error
+            description = "List all tasks belonging to the project",
+            body = Vec<Task>
         ),
         (
             status = 401,
             description = "Unauthorized",
+            body = Error
+        ),
+        (
+            status = 404,
+            description = "Project not found",
             body = Error
         ),
         (
@@ -50,14 +50,14 @@ use crate::{
         )
     )
 )]
-pub async fn get_transcript(
+pub async fn get_by_project(
     State(state): State<Arc<ApiState>>,
-    AccountID(account_id): AccountID,
-    Path(id): Path<Uuid>,
-) -> Result<Json<Vec<TranscriptSegment>>> {
+    _: AccountID,
+    Path(project_id): Path<Uuid>,
+) -> Result<Json<Vec<Task>>> {
     state
-        .project_svc
-        .get_transcript(&state.db, account_id, id)
+        .task_svc
+        .get_by_project(&state.db, project_id)
         .await
         .map(Json)
 }

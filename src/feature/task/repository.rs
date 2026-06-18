@@ -2,7 +2,7 @@ use itertools::MultiUnzip;
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::feature::task::model::{MinimalTask, Task, TaskPriority, TaskStatus};
+use super::model::{MinimalTask, Task, TaskPriority, TaskStatus};
 
 pub async fn create_tasks(
     executor: impl PgExecutor<'_>,

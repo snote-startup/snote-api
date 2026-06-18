@@ -5,6 +5,7 @@ use crate::{
         auth::service::{AuthService, PartialTokenService, TokenService},
         chat::service::ChatService,
         project::service::ProjectService,
+        task::service::TaskService,
     },
     infra::{storage::S3Client, transcript::AssemblyAIClient},
     shared::Config,
@@ -18,8 +19,9 @@ pub struct ApiState {
 
     pub token_svc: TokenService,
     pub auth_svc: AuthService,
-    pub chat_svc: ChatService,
     pub project_svc: ProjectService,
+    pub chat_svc: ChatService,
+    pub task_svc: TaskService,
 }
 
 impl ApiState {
@@ -41,13 +43,15 @@ impl ApiState {
 
             auth_svc: AuthService,
 
+            project_svc: ProjectService,
+
             chat_svc: ChatService::new(
                 &config.gemini_api_key,
                 config.chat_context_transcript_size,
                 config.chat_context_history_size,
             )?,
 
-            project_svc: ProjectService,
+            task_svc: TaskService,
         })
     }
 }

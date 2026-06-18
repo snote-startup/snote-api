@@ -26,7 +26,7 @@ pub struct Request {
 #[utoipa::path(
     post,
     operation_id = "project::create_transcript",
-    tag = "Project",
+    tags = ["Transcript", "Project"],
     path = "/project/{id}/transcript",
     params(
         (
