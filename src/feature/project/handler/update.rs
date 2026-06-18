@@ -72,7 +72,7 @@ pub async fn update(
     Json(req): Json<Request>,
 ) -> Result<StatusCode> {
     state
-        .project_service
+        .project_svc
         .update(
             &state.db,
             account_id,

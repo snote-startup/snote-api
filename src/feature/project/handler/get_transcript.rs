@@ -56,7 +56,7 @@ pub async fn get_transcript(
     Path(id): Path<Uuid>,
 ) -> Result<Json<Vec<TranscriptSegment>>> {
     state
-        .project_service
+        .project_svc
         .get_transcript(&state.db, account_id, id)
         .await
         .map(Json)

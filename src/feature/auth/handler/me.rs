@@ -43,8 +43,8 @@ pub async fn me(
 ) -> Result<Json<MinimalAccount>> {
     let access_token = bearer.token();
     state
-        .auth_service
-        .me(&state.db, &state.token_service, access_token)
+        .auth_svc
+        .me(&state.db, &state.token_svc, access_token)
         .await
         .map(Json)
 }

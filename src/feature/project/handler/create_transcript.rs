@@ -71,8 +71,8 @@ pub async fn create_transcript(
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode> {
     state
-        .project_service
-        .create_transcript(&state.db, &state.assembly_ai_client, account_id, id)
+        .project_svc
+        .create_transcript(&state.db, &state.assembly_ai, account_id, id)
         .await?;
 
     Ok(StatusCode::NO_CONTENT)

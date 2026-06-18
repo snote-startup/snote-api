@@ -38,7 +38,7 @@ pub async fn get_by_account(
     AccountID(account_id): AccountID,
 ) -> Result<Json<Vec<Project>>> {
     state
-        .project_service
+        .project_svc
         .get_by_account(&state.db, account_id)
         .await
         .map(Json)

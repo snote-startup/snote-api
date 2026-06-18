@@ -87,12 +87,12 @@ impl ChatService {
         Ok(PaginatedVec { data, next_cursor })
     }
 
-    #[tracing::instrument(err(Debug), skip(self, db, project_service))]
+    #[tracing::instrument(err(Debug), skip(self, db, project_svc))]
     pub async fn chat(
         &self,
 
         db: PgPool,
-        project_service: &ProjectService,
+        project_svc: &ProjectService,
 
         project_id: Uuid,
         account_id: Uuid,
@@ -105,7 +105,7 @@ impl ChatService {
 </transcript_segments>
 {}
         "#,
-            self.get_context_segments(&db, project_service, project_id, account_id, &prompt)
+            self.get_context_segments(&db, project_svc, project_id, account_id, &prompt)
                 .await?,
             prompt
         );
@@ -155,7 +155,7 @@ impl ChatService {
         &self,
 
         db: &PgPool,
-        project_service: &ProjectService,
+        project_svc: &ProjectService,
 
         project_id: Uuid,
         account_id: Uuid,
@@ -164,7 +164,7 @@ impl ChatService {
         let embedding = self.embedding_model.embed_text(prompt).await?.vec;
         let embedding: Vec<_> = embedding.into_iter().map(|x| x as f32).collect();
 
-        let segments = project_service
+        let segments = project_svc
             .get_top_k_transcript_segments(
                 db,
                 project_id,

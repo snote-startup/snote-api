@@ -86,8 +86,8 @@ pub async fn upload_audio(
     let content = field.bytes().await?;
 
     state
-        .project_service
-        .upload_audio(&state.db, &state.s3_client, account_id, id, content.into())
+        .project_svc
+        .upload_audio(&state.db, &state.s3, account_id, id, content.into())
         .await?;
 
     Ok(StatusCode::NO_CONTENT)

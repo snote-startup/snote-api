@@ -55,9 +55,7 @@ pub async fn refresh(
         .into());
     };
     let refresh_token = cookie.value();
-    let token_pair = state
-        .auth_service
-        .refresh(&state.token_service, refresh_token)?;
+    let token_pair = state.auth_svc.refresh(&state.token_svc, refresh_token)?;
 
     let mut cookie = Cookie::new(REFRESH_COOKIE, token_pair.refresh);
     cookie.set_same_site(SameSite::None);

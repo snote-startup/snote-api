@@ -53,7 +53,7 @@ pub async fn get(
     Path(id): Path<Uuid>,
 ) -> Result<Json<Project>> {
     state
-        .project_service
+        .project_svc
         .get(&state.db, account_id, id)
         .await
         .map(Json)

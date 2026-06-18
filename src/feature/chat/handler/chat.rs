@@ -70,10 +70,10 @@ pub async fn chat(
     Json(req): Json<Request>,
 ) -> Result<Body> {
     let stream = state
-        .chat_service
+        .chat_svc
         .chat(
             state.db.to_owned(),
-            &state.project_service,
+            &state.project_svc,
             id,
             account_id,
             req.prompt,

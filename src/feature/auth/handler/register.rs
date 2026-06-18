@@ -68,10 +68,10 @@ pub async fn register(
     Json(request): Json<Request>,
 ) -> Result<(StatusCode, CookieJar, String)> {
     let token_pair = state
-        .auth_service
+        .auth_svc
         .register(
             &state.db,
-            &state.token_service,
+            &state.token_svc,
             &request.email,
             &request.password,
             &request.name,

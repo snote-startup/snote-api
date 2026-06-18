@@ -63,7 +63,7 @@ pub async fn create(
     Json(req): Json<Request>,
 ) -> Result<(StatusCode, Json<Uuid>)> {
     let id = state
-        .project_service
+        .project_svc
         .create(
             &state.db,
             account_id,

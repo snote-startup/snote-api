@@ -73,12 +73,12 @@ impl ProjectService {
         Ok(())
     }
 
-    #[tracing::instrument(err(Debug), skip(self, db, s3_client))]
+    #[tracing::instrument(err(Debug), skip(self, db, s3))]
     pub async fn upload_audio(
         &self,
 
         db: &PgPool,
-        s3_client: &S3Client,
+        s3: &S3Client,
 
         account_id: Uuid,
         id: Uuid,
@@ -87,19 +87,19 @@ impl ProjectService {
         self.assert_existed(db, account_id, id).await?;
 
         let key = format!("{}/audio", id);
-        let audio_url = s3_client.upload(key, content).await?;
+        let audio_url = s3.upload(key, content).await?;
 
         repository::update_project(db, id, None, None, Some(&audio_url), None).await?;
 
         Ok(())
     }
 
-    #[tracing::instrument(err(Debug), skip(self, db, assembly_ai_client))]
+    #[tracing::instrument(err(Debug), skip(self, db, assembly_ai))]
     pub async fn create_transcript(
         &self,
 
         db: &PgPool,
-        assembly_ai_client: &AssemblyAIClient,
+        assembly_ai: &AssemblyAIClient,
 
         account_id: Uuid,
         id: Uuid,
@@ -114,8 +114,8 @@ impl ProjectService {
             .into());
         };
 
-        let transcript_ai_id = assembly_ai_client.create_transcript(&audio_url).await?;
-        let transcript = assembly_ai_client.get_transcript(&transcript_ai_id).await?;
+        let transcript_ai_id = assembly_ai.create_transcript(&audio_url).await?;
+        let transcript = assembly_ai.get_transcript(&transcript_ai_id).await?;
 
         let speakers: Vec<_> = transcript.iter().map(|x| x.speaker.clone()).collect();
         let texts: Vec<_> = transcript.iter().map(|x| x.text.clone()).collect();
