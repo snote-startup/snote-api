@@ -52,6 +52,7 @@ impl Modify for SecurityAddon {
         chat::chat,
         chat::get_history,
 
+        task::create,
         task::get_by_project,
         task::update,
         task::delete

@@ -16,7 +16,7 @@ use super::{
 };
 
 pub struct TaskService {
-    pub extractor: Extractor<gemini::CompletionModel, CreateTaskData>,
+    pub extractor: Extractor<gemini::CompletionModel, Vec<CreateTaskData>>,
 }
 
 impl TaskService {
@@ -25,7 +25,7 @@ impl TaskService {
         let client = gemini::Client::new(api_key)?;
 
         let extractor = client
-            .extractor::<CreateTaskData>(gemini::completion::GEMINI_3_FLASH_PREVIEW)
+            .extractor::<Vec<CreateTaskData>>(gemini::completion::GEMINI_3_FLASH_PREVIEW)
             .preamble(SYSTEM_PROMPT)
             .build();
 
@@ -35,12 +35,26 @@ impl TaskService {
     pub async fn create(
         &self,
 
-        _db: &PgPool,
-        _project_svc: &ProjectService,
+        db: &PgPool,
+        project_svc: &ProjectService,
 
-        _project_id: Uuid,
+        account_id: Uuid,
+        project_id: Uuid,
     ) -> Result<()> {
-        todo!()
+        let transcript = project_svc
+            .get_transcript(db, account_id, project_id)
+            .await?;
+        let mut prompt = String::new();
+        for segment in transcript {
+            prompt.push_str(&segment.to_string());
+            prompt.push('\n');
+        }
+
+        let tasks = self.extractor.extract(prompt).await?;
+
+        repository::create_tasks(db, project_id, tasks).await?;
+
+        Ok(())
     }
 
     pub async fn get_by_project(&self, db: &PgPool, project_id: Uuid) -> Result<Vec<Task>> {
