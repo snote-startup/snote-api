@@ -51,7 +51,7 @@ impl ApiState {
                 config.chat_context_history_size,
             )?,
 
-            task_svc: TaskService,
+            task_svc: TaskService::new(&config.gemini_api_key)?,
         })
     }
 }

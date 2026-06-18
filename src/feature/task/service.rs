@@ -1,16 +1,37 @@
+use rig_core::{client::CompletionClient, extractor::Extractor, providers::gemini};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{error::Result, feature::project::service::ProjectService};
+use crate::{
+    error::Result,
+    feature::{
+        project::service::ProjectService,
+        task::{SYSTEM_PROMPT, model::CreateTaskData},
+    },
+};
 
 use super::{
     model::{Task, TaskPriority, TaskStatus},
     repository,
 };
 
-pub struct TaskService;
+pub struct TaskService {
+    pub extractor: Extractor<gemini::CompletionModel, CreateTaskData>,
+}
 
 impl TaskService {
+    #[tracing::instrument(err(Debug))]
+    pub fn new(api_key: &str) -> color_eyre::Result<Self> {
+        let client = gemini::Client::new(api_key)?;
+
+        let extractor = client
+            .extractor::<CreateTaskData>(gemini::completion::GEMINI_3_FLASH_PREVIEW)
+            .preamble(SYSTEM_PROMPT)
+            .build();
+
+        Ok(Self { extractor })
+    }
+
     pub async fn create(
         &self,
 
