@@ -46,6 +46,7 @@ pub async fn get_tasks_by_project(
             SELECT id, status as "status: _", priority as "priority: _", content, created_at
             FROM tasks
             WHERE project_id = $1
+            ORDER BY created_at
         "#,
         project_id
     )
