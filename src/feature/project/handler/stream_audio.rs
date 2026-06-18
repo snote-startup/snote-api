@@ -1,18 +1,12 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{Multipart, Path, State, WebSocketUpgrade},
+    extract::{Path, State, WebSocketUpgrade},
     response::IntoResponse,
 };
-use http::StatusCode;
-use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::{
-    error::{Error, ErrorContext, Result, ResultExt},
-    feature::auth::extractor::AccountID,
-    shared::ApiState,
-};
+use crate::{error::Error, feature::auth::extractor::AccountID, shared::ApiState};
 
 #[utoipa::path(
     post,
