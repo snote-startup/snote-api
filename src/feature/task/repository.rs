@@ -10,23 +10,21 @@ pub async fn create_tasks(
     tasks: Vec<MinimalTask>,
 ) -> sqlx::Result<()> {
     let project_ids = vec![project_id; tasks.len()];
-    let (statuses, priorities, contents): (Vec<_>, Vec<_>, Vec<_>) = tasks
+    let (priorities, contents): (Vec<_>, Vec<_>) = tasks
         .into_iter()
-        .map(|t| (t.status, t.priority, t.content))
+        .map(|t| (t.priority, t.content))
         .multiunzip();
 
     sqlx::query!(
         r#"
-            INSERT INTO tasks(project_id, status, priority, content)
+            INSERT INTO tasks(project_id, priority, content)
             SELECT * FROM UNNEST(
                 $1::uuid[],
-                $2::task_status[],
-                $3::task_priority[],
-                $4::text[]
+                $2::task_priority[],
+                $3::text[]
             )
         "#,
         &project_ids,
-        &statuses as _,
         &priorities as _,
         &contents
     )

@@ -22,7 +22,6 @@ pub enum TaskPriority {
 }
 
 pub struct MinimalTask {
-    pub status: TaskStatus,
     pub priority: TaskPriority,
     pub content: String,
 }
