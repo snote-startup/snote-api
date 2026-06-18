@@ -2,12 +2,12 @@ use itertools::MultiUnzip;
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use super::model::{MinimalTask, Task, TaskPriority, TaskStatus};
+use super::model::{CreateTaskData, Task, TaskPriority, TaskStatus};
 
 pub async fn create_tasks(
     executor: impl PgExecutor<'_>,
     project_id: Uuid,
-    tasks: Vec<MinimalTask>,
+    tasks: Vec<CreateTaskData>,
 ) -> sqlx::Result<()> {
     let project_ids = vec![project_id; tasks.len()];
     let (priorities, contents): (Vec<_>, Vec<_>) = tasks

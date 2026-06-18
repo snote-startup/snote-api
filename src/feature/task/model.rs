@@ -21,7 +21,7 @@ pub enum TaskPriority {
     High,
 }
 
-pub struct MinimalTask {
+pub struct CreateTaskData {
     pub priority: TaskPriority,
     pub content: String,
 }
