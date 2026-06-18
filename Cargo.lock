@@ -3487,6 +3487,7 @@ dependencies = [
  "pgvector",
  "reqwest",
  "rig-core",
+ "schemars",
  "serde",
  "serde_json",
  "sqlx",

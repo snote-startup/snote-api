@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
@@ -12,7 +13,7 @@ pub enum TaskStatus {
     Done,
 }
 
-#[derive(Debug, Serialize, Deserialize, sqlx::Type, ToSchema, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, sqlx::Type, ToSchema, Clone, Copy)]
 #[sqlx(rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum TaskPriority {
@@ -21,6 +22,7 @@ pub enum TaskPriority {
     High,
 }
 
+#[derive(Serialize, Deserialize, JsonSchema)]
 pub struct CreateTaskData {
     pub priority: TaskPriority,
     pub content: String,
