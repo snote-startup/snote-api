@@ -69,11 +69,15 @@ pub async fn chat(
     Path(id): Path<Uuid>,
     Json(req): Json<Request>,
 ) -> Result<Body> {
-    let _ = state.project_service.get(&state.db, account_id, id).await?;
-
     let stream = state
         .chat_service
-        .chat(state.db.to_owned(), id, req.prompt)
+        .chat(
+            state.db.to_owned(),
+            &state.project_service,
+            id,
+            account_id,
+            req.prompt,
+        )
         .await?;
 
     Ok(Body::from_stream(stream))

@@ -1,5 +1,4 @@
 use futures::{Stream, StreamExt, TryStreamExt};
-use pgvector::Vector;
 use rig_core::{
     agent::{Agent, MultiTurnStreamItem},
     client::{CompletionClient, EmbeddingsClient},
@@ -14,10 +13,13 @@ use uuid::Uuid;
 
 use crate::{
     error::Result,
-    feature::chat::{
-        SYSTEM_PROMPT,
-        model::{ChatMessage, ChatMessageCursor, ChatRole},
-        repository,
+    feature::{
+        chat::{
+            SYSTEM_PROMPT,
+            model::{ChatMessage, ChatMessageCursor, ChatRole},
+            repository,
+        },
+        project::service::ProjectService,
     },
     shared::pagination::{self, PaginatedVec, PaginationQuery},
 };
@@ -60,6 +62,8 @@ impl ChatService {
         db: &PgPool,
 
         project_id: Uuid,
+        //TODO: check ownership
+        #[allow(unused)] account_id: Uuid,
         query: PaginationQuery,
     ) -> Result<PaginatedVec<ChatMessage>> {
         let mut data = match query.cursor {
@@ -83,13 +87,15 @@ impl ChatService {
         Ok(PaginatedVec { data, next_cursor })
     }
 
-    #[tracing::instrument(err(Debug), skip(self, db))]
+    #[tracing::instrument(err(Debug), skip(self, db, project_service))]
     pub async fn chat(
         &self,
 
         db: PgPool,
+        project_service: &ProjectService,
 
         project_id: Uuid,
+        account_id: Uuid,
         prompt: String,
     ) -> Result<impl Stream<Item = color_eyre::eyre::Result<String>> + use<>> {
         let prompt = format!(
@@ -99,7 +105,8 @@ impl ChatService {
 </transcript_segments>
 {}
         "#,
-            self.get_context_segments(&db, project_id, &prompt).await?,
+            self.get_context_segments(&db, project_service, project_id, account_id, &prompt)
+                .await?,
             prompt
         );
         let history = self.get_context_history(&db, project_id).await?;
@@ -148,21 +155,24 @@ impl ChatService {
         &self,
 
         db: &PgPool,
+        project_service: &ProjectService,
 
         project_id: Uuid,
+        account_id: Uuid,
         prompt: &str,
-    ) -> color_eyre::Result<String> {
+    ) -> Result<String> {
         let embedding = self.embedding_model.embed_text(prompt).await?.vec;
         let embedding: Vec<_> = embedding.into_iter().map(|x| x as f32).collect();
-        let embedding = Vector::from(embedding);
 
-        let segments = repository::get_top_k_transcript_segments(
-            db,
-            project_id,
-            &embedding,
-            self.context_transcript_size,
-        )
-        .await?;
+        let segments = project_service
+            .get_top_k_transcript_segments(
+                db,
+                project_id,
+                account_id,
+                embedding,
+                self.context_transcript_size,
+            )
+            .await?;
         let mut context = String::new();
         for segment in segments {
             context.push_str(&segment.to_string());
