@@ -10,6 +10,7 @@ use crate::{
     shared::ApiState,
 };
 
+#[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     delete,
     operation_id = "task::delete",
