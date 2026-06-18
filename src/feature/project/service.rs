@@ -1,4 +1,5 @@
 use aws_sdk_s3::primitives::ByteStream;
+use axum::extract::ws::{self, WebSocket};
 use http::StatusCode;
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -88,6 +89,36 @@ impl ProjectService {
 
         let key = format!("{}/audio", id);
         let audio_url = s3.upload(key, content).await?;
+
+        repository::update_project(db, id, None, None, Some(&audio_url), None).await?;
+
+        Ok(())
+    }
+
+    #[tracing::instrument(err(Debug), skip(self, db, s3))]
+    pub async fn stream_audio(
+        &self,
+
+        db: &PgPool,
+        s3: &S3Client,
+
+        id: Uuid,
+        mut socket: WebSocket,
+    ) -> Result<()> {
+        let mut audio = vec![];
+
+        while let Some(Ok(msg)) = socket.recv().await {
+            match msg {
+                ws::Message::Binary(data) => {
+                    audio.append(&mut data.to_vec());
+                }
+                ws::Message::Close(_) => {}
+                _ => {}
+            }
+        }
+
+        let key = format!("{}/audio", id);
+        let audio_url = s3.upload(key, audio.into()).await?;
 
         repository::update_project(db, id, None, None, Some(&audio_url), None).await?;
 
