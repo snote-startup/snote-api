@@ -1,6 +1,6 @@
 CREATE TYPE task_status AS ENUM (
     'todo',
-    'in-progress',
+    'in_progress',
     'done'
 );
 
