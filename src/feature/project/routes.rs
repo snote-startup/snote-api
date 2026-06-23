@@ -6,8 +6,8 @@ use crate::{feature::project::handler, shared::ApiState};
 
 pub fn routes() -> Router<Arc<ApiState>> {
     Router::new()
-        .route("/project/", routing::post(handler::create))
-        .route("/project/", routing::get(handler::get_by_account))
+        .route("/project", routing::post(handler::create))
+        .route("/project", routing::get(handler::get_by_account))
         .route("/project/{id}", routing::get(handler::get))
         .route("/project/{id}", routing::patch(handler::update))
         .route("/project/{id}/audio", routing::patch(handler::upload_audio))
