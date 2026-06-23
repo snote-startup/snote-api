@@ -1,6 +1,4 @@
 use rig_core::{client::CompletionClient, extractor::Extractor, providers::gemini};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
 
