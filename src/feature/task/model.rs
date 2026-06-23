@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, sqlx::Type, ToSchema, Clone, Copy)]
-#[sqlx(rename_all = "snake_case")]
+#[sqlx(rename_all = "snake_case", type_name = "task_status")]
 #[serde(rename_all = "snake_case")]
 pub enum TaskStatus {
     Todo,
