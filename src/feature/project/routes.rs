@@ -10,7 +10,7 @@ pub fn routes() -> Router<Arc<ApiState>> {
         .route("/project", routing::get(handler::get_by_account))
         .route("/project/{id}", routing::get(handler::get))
         .route("/project/{id}", routing::patch(handler::update))
-        .route("/project/{id}/audio", routing::patch(handler::upload_audio))
+        .route("/project/{id}/upload", routing::post(handler::upload_audio))
         .route("/project/{id}/stream", routing::any(handler::stream_audio))
         .route(
             "/project/{id}/transcript",
