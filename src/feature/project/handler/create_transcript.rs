@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use axum::extract::{Path, State};
 use http::StatusCode;
-use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::{
