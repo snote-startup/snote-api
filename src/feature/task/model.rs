@@ -14,7 +14,7 @@ pub enum TaskStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, sqlx::Type, ToSchema, Clone, Copy)]
-#[sqlx(rename_all = "snake_case")]
+#[sqlx(rename_all = "snake_case", type_name = "task_priority")]
 #[serde(rename_all = "snake_case")]
 pub enum TaskPriority {
     Low,
@@ -26,6 +26,11 @@ pub enum TaskPriority {
 pub struct CreateTaskData {
     pub priority: TaskPriority,
     pub content: String,
+}
+
+#[derive(JsonSchema, Serialize, Deserialize)]
+pub struct LLMResponse {
+    pub task: Vec<CreateTaskData>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]

@@ -6,7 +6,7 @@ use crate::{
     error::Result,
     feature::{
         project::service::ProjectService,
-        task::{SYSTEM_PROMPT, model::CreateTaskData},
+        task::{SYSTEM_PROMPT, model::LLMResponse},
     },
 };
 
@@ -16,7 +16,7 @@ use super::{
 };
 
 pub struct TaskService {
-    pub extractor: Extractor<gemini::CompletionModel, Vec<CreateTaskData>>,
+    pub extractor: Extractor<gemini::CompletionModel, LLMResponse>,
 }
 
 impl TaskService {
@@ -25,7 +25,7 @@ impl TaskService {
         let client = gemini::Client::new(api_key)?;
 
         let extractor = client
-            .extractor::<Vec<CreateTaskData>>(gemini::completion::GEMINI_3_FLASH_PREVIEW)
+            .extractor::<LLMResponse>(gemini::completion::GEMINI_3_FLASH_PREVIEW)
             .preamble(SYSTEM_PROMPT)
             .build();
 
@@ -50,9 +50,9 @@ impl TaskService {
             prompt.push('\n');
         }
 
-        let tasks = self.extractor.extract(prompt).await?;
+        let resp = self.extractor.extract(prompt).await?;
 
-        repository::create_tasks(db, project_id, tasks).await?;
+        repository::create_tasks(db, project_id, resp.task).await?;
 
         Ok(())
     }
