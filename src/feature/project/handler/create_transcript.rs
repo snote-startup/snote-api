@@ -11,17 +11,6 @@ use crate::{
     shared::ApiState,
 };
 
-#[allow(unused)]
-#[derive(Debug, ToSchema)]
-#[schema(as = project::create_transcript::Request)]
-pub struct Request {
-    #[schema(
-        value_type = String,
-        format = Binary,
-    )]
-    pub audio: String,
-}
-
 #[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     post,
@@ -36,21 +25,11 @@ pub struct Request {
             example = "550e8400-e29b-41d4-a716-446655440000"
         )
     ),
-    request_body(
-        content = Request,
-        content_type = "multipart/form-data",
-        description = "Upload an audio file"
-    ),
     security(("jwt_token" = [])),
     responses(
         (
             status = 204,
             description = "Audio uploaded successfully"
-        ),
-        (
-            status = 400,
-            description = "Payload is not multipart, no audio file provided, or invalid project id",
-            body = Error
         ),
         (
             status = 401,
