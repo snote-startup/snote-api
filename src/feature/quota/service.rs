@@ -30,6 +30,7 @@ impl QuotaService {
 
     #[tracing::instrument(err(Debug), skip(self, db))]
     pub async fn get(&self, db: &PgPool, account_id: Uuid) -> Result<i32> {
+        repository::create_quota(db, account_id).await?;
         let quota = repository::get_quota(db, account_id)
             .await
             .map(|x| x.max(0))?;
