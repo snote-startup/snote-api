@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 async-stream = "0.3.6"
 aws-config = { version = "1.8.18", features = ["behavior-version-latest"] }
+aws-lc-rs = "1.17.0"
 aws-sdk-s3 = { version = "1.135.0", features = ["behavior-version-latest"] }
 axum = { version = "0.8.9", features = ["macros", "multipart", "ws"] }
 axum-extra = { version = "0.12.6", features = ["typed-header", "cookie"] }
@@ -15,6 +16,7 @@ chrono = { version = "0.4.44", features = ["serde"] }
 color-eyre = "0.6.5"
 config = { version = "0.15.23", default-features = false }
 futures = "0.3.32"
+hex = "0.4.3"
 http = "1.4.1"
 itertools = "0.15.0"
 jsonwebtoken = { version = "10.4.0", features = ["aws_lc_rs"] }

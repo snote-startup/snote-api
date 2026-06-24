@@ -2,24 +2,24 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
-struct PayOsResponse<T> {
-    code: String,
-    desc: String,
-    data: Option<T>,
+pub struct PayOsResponse<T> {
+    pub code: String,
+    pub desc: String,
+    pub data: Option<T>,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct CreatePaymentRequest {
-    order_code: i64,
-    amount: i64,
-    description: String,
-    cancel_url: String,
-    return_url: String,
-    items: Vec<PaymentItem>,
+pub struct CreatePaymentRequest {
+    pub order_code: i64,
+    pub amount: i64,
+    pub description: String,
+    pub cancel_url: String,
+    pub return_url: String,
+    pub items: Vec<PaymentItem>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    expired_at: Option<i64>,
-    signature: String,
+    pub expired_at: Option<i64>,
+    pub signature: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -56,7 +56,7 @@ pub struct CreatePaymentResponse {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PaymentLink {
+pub struct Payment {
     pub id: String,
     pub order_code: i64,
     pub amount: i64,
