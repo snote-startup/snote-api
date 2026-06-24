@@ -66,6 +66,7 @@ pub async fn create(
         .project_svc
         .create(
             &state.db,
+            &state.quota_svc,
             account_id,
             &req.title,
             req.description.as_deref(),

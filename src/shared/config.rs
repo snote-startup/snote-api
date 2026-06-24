@@ -4,6 +4,8 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    #[serde(default = "default_base_url")]
+    pub base_url: String,
     #[serde(default = "default_port")]
     pub port: u16,
     pub database_url: String,
@@ -22,6 +24,10 @@ pub struct Config {
 
     pub s3_bucket: String,
     pub aws_endpoint_url: String,
+
+    pub payos_client_id: String,
+    pub payos_api_key: String,
+    pub payos_checksum_key: String,
 
     pub assembly_ai_api_key: String,
 
@@ -45,6 +51,10 @@ impl Config {
 
         Ok(config)
     }
+}
+
+fn default_base_url() -> String {
+    "http://localhost:3000".to_string()
 }
 
 const fn default_port() -> u16 {

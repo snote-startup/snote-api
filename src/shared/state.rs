@@ -4,10 +4,12 @@ use crate::{
     feature::{
         auth::service::{AuthService, PartialTokenService, TokenService},
         chat::service::ChatService,
+        payment_test::service::PaymentTestService,
         project::service::ProjectService,
+        quota::service::QuotaService,
         task::service::TaskService,
     },
-    infra::{storage::S3Client, transcript::AssemblyAIClient},
+    infra::{payment::PayOSClient, storage::S3Client, transcript::AssemblyAIClient},
     shared::Config,
 };
 
@@ -16,12 +18,16 @@ pub struct ApiState {
 
     pub s3: S3Client,
     pub assembly_ai: AssemblyAIClient,
+    pub payos: PayOSClient,
 
     pub token_svc: TokenService,
     pub auth_svc: AuthService,
     pub project_svc: ProjectService,
     pub chat_svc: ChatService,
     pub task_svc: TaskService,
+    pub quota_svc: QuotaService,
+
+    pub payment_test_svc: PaymentTestService,
 }
 
 impl ApiState {
@@ -29,9 +35,15 @@ impl ApiState {
         Ok(ApiState {
             db: PgPool::connect(&config.database_url).await?,
 
-            s3: S3Client::new(config.aws_endpoint_url.clone(), config.s3_bucket.clone()).await,
+            s3: S3Client::new(config.aws_endpoint_url, config.s3_bucket).await,
 
-            assembly_ai: AssemblyAIClient::new(&config.assembly_ai_api_key.to_string()),
+            assembly_ai: AssemblyAIClient::new(config.assembly_ai_api_key),
+
+            payos: PayOSClient::new(
+                config.payos_client_id,
+                config.payos_api_key,
+                config.payos_checksum_key,
+            ),
 
             token_svc: TokenService {
                 access: PartialTokenService::new(&config.jwt_secret, config.jwt_expired_in),
@@ -52,6 +64,10 @@ impl ApiState {
             )?,
 
             task_svc: TaskService::new(&config.gemini_api_key)?,
+
+            quota_svc: QuotaService::new(config.base_url.clone()),
+
+            payment_test_svc: PaymentTestService::new(config.base_url),
         })
     }
 }

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT count\n            FROM quotas\n            WHERE account_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "quotas",
+            "name": "count"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3cfdf758cca20e64cac3423d724e80183f0bab9ecb52d66f49c199b990445b72"
+}

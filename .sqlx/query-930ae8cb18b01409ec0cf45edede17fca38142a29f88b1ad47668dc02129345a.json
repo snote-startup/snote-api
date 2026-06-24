@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE quotas\n            SET count = count + $2\n            WHERE account_id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "930ae8cb18b01409ec0cf45edede17fca38142a29f88b1ad47668dc02129345a"
+}
