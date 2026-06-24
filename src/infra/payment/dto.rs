@@ -29,7 +29,7 @@ pub struct PaymentItem {
     pub price: i64,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum PaymentStatus {
     Pending,
@@ -39,6 +39,7 @@ pub enum PaymentStatus {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 #[serde(rename_all = "camelCase")]
 pub struct CreatePaymentResponse {
     pub bin: String,
@@ -55,6 +56,7 @@ pub struct CreatePaymentResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 #[serde(rename_all = "camelCase")]
 pub struct Payment {
     pub id: String,

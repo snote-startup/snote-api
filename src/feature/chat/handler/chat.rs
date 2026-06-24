@@ -22,6 +22,7 @@ pub struct Request {
     pub prompt: String,
 }
 
+#[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
     post,
     operation_id = "project::chat",

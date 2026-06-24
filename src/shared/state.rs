@@ -4,6 +4,7 @@ use crate::{
     feature::{
         auth::service::{AuthService, PartialTokenService, TokenService},
         chat::service::ChatService,
+        payment_test::service::PaymentTestService,
         project::service::ProjectService,
         task::service::TaskService,
     },
@@ -23,6 +24,8 @@ pub struct ApiState {
     pub project_svc: ProjectService,
     pub chat_svc: ChatService,
     pub task_svc: TaskService,
+
+    pub payment_test_svc: PaymentTestService,
 }
 
 impl ApiState {
@@ -59,6 +62,8 @@ impl ApiState {
             )?,
 
             task_svc: TaskService::new(&config.gemini_api_key)?,
+
+            payment_test_svc: PaymentTestService::new(config.base_url),
         })
     }
 }

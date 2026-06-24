@@ -66,7 +66,7 @@ impl AssemblyAIClient {
                 TranscriptStatus::Processing => sleep(POLL_INTERVAL).await,
                 TranscriptStatus::Completed => return Ok(resp.utterances.unwrap()),
                 TranscriptStatus::Error => {
-                    return Err(color_eyre::eyre::eyre!(resp.error.unwrap()).into());
+                    return Err(color_eyre::eyre::eyre!(resp.error.unwrap()));
                 }
             }
         }

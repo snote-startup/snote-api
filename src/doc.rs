@@ -8,8 +8,8 @@ use utoipa::{
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::feature::{
-    auth::handler as auth, chat::handler as chat, project::handler as project,
-    task::handler as task,
+    auth::handler as auth, chat::handler as chat, payment_test::handler as payment_test,
+    project::handler as project, task::handler as task,
 };
 use crate::{error::Error, shared::ApiState, shared::health};
 
@@ -56,7 +56,10 @@ impl Modify for SecurityAddon {
         task::create,
         task::get_by_project,
         task::update,
-        task::delete
+        task::delete,
+
+        payment_test::create_link,
+        payment_test::handle_return
     ),
     components(schemas(Error,)),
     modifiers(&SecurityAddon),
