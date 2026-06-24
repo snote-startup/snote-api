@@ -23,6 +23,10 @@ pub struct Config {
     pub s3_bucket: String,
     pub aws_endpoint_url: String,
 
+    pub payos_client_id: String,
+    pub payos_api_key: String,
+    pub payos_checksum_key: String,
+
     pub assembly_ai_api_key: String,
 
     pub gemini_api_key: String,

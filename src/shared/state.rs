@@ -7,7 +7,7 @@ use crate::{
         project::service::ProjectService,
         task::service::TaskService,
     },
-    infra::{storage::S3Client, transcript::AssemblyAIClient},
+    infra::{payment::PayOSClient, storage::S3Client, transcript::AssemblyAIClient},
     shared::Config,
 };
 
@@ -16,6 +16,7 @@ pub struct ApiState {
 
     pub s3: S3Client,
     pub assembly_ai: AssemblyAIClient,
+    pub payos: PayOSClient,
 
     pub token_svc: TokenService,
     pub auth_svc: AuthService,
@@ -32,6 +33,12 @@ impl ApiState {
             s3: S3Client::new(config.aws_endpoint_url, config.s3_bucket).await,
 
             assembly_ai: AssemblyAIClient::new(config.assembly_ai_api_key),
+
+            payos: PayOSClient::new(
+                config.payos_client_id,
+                config.payos_api_key,
+                config.payos_checksum_key,
+            ),
 
             token_svc: TokenService {
                 access: PartialTokenService::new(&config.jwt_secret, config.jwt_expired_in),
