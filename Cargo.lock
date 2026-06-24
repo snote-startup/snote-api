@@ -3490,6 +3490,7 @@ dependencies = [
  "itertools",
  "jsonwebtoken",
  "pgvector",
+ "rand 0.10.1",
  "reqwest",
  "rig-core",
  "schemars",

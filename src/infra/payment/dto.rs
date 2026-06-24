@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
-pub struct PayOsResponse<T> {
+pub struct PayOSResponse<T> {
     pub code: String,
     pub desc: String,
     pub data: Option<T>,
