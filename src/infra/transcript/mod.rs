@@ -5,8 +5,6 @@ use std::time::Duration;
 use http::header::AUTHORIZATION;
 use tokio::time::sleep;
 
-use crate::error::Result;
-
 pub use dto::Segment;
 use dto::{
     CreateTranscriptRequest, CreateTranscriptResponse, GetTranscriptResponse, SpeechModel,
