@@ -29,9 +29,9 @@ impl ApiState {
         Ok(ApiState {
             db: PgPool::connect(&config.database_url).await?,
 
-            s3: S3Client::new(config.aws_endpoint_url.clone(), config.s3_bucket.clone()).await,
+            s3: S3Client::new(config.aws_endpoint_url, config.s3_bucket).await,
 
-            assembly_ai: AssemblyAIClient::new(&config.assembly_ai_api_key.to_string()),
+            assembly_ai: AssemblyAIClient::new(config.assembly_ai_api_key),
 
             token_svc: TokenService {
                 access: PartialTokenService::new(&config.jwt_secret, config.jwt_expired_in),
