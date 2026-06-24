@@ -6,6 +6,7 @@ use crate::{
         chat::service::ChatService,
         payment_test::service::PaymentTestService,
         project::service::ProjectService,
+        quota::service::QuotaService,
         task::service::TaskService,
     },
     infra::{payment::PayOSClient, storage::S3Client, transcript::AssemblyAIClient},
@@ -24,6 +25,7 @@ pub struct ApiState {
     pub project_svc: ProjectService,
     pub chat_svc: ChatService,
     pub task_svc: TaskService,
+    pub quota_svc: QuotaService,
 
     pub payment_test_svc: PaymentTestService,
 }
@@ -62,6 +64,8 @@ impl ApiState {
             )?,
 
             task_svc: TaskService::new(&config.gemini_api_key)?,
+
+            quota_svc: QuotaService::new(config.base_url.clone()),
 
             payment_test_svc: PaymentTestService::new(config.base_url),
         })

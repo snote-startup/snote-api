@@ -6,9 +6,12 @@ use uuid::Uuid;
 
 use crate::{
     error::{ErrorContext, Result},
-    feature::project::{
-        model::{Project, TranscriptSegment},
-        repository,
+    feature::{
+        project::{
+            model::{Project, TranscriptSegment},
+            repository,
+        },
+        quota::service::QuotaService,
     },
     infra::{storage::S3Client, transcript::AssemblyAIClient},
 };
@@ -17,17 +20,30 @@ use crate::{
 pub struct ProjectService;
 
 impl ProjectService {
-    #[tracing::instrument(err(Debug), skip(self, db))]
+    #[tracing::instrument(err(Debug), skip(self, db, quota_svc))]
     pub async fn create(
         &self,
 
         db: &PgPool,
+        quota_svc: &QuotaService,
 
         account_id: Uuid,
         title: &str,
         description: Option<&str>,
     ) -> Result<Uuid> {
+        let quota = quota_svc.get(db, account_id).await?;
+        if quota <= 0 {
+            return Err(ErrorContext {
+                status: StatusCode::FORBIDDEN,
+                message: "Out of quota".to_string(),
+                ..Default::default()
+            }
+            .into());
+        }
+
+        quota_svc.decrease(db, account_id).await?;
         let id = repository::create_project(db, account_id, title, description).await?;
+
         Ok(id)
     }
 
