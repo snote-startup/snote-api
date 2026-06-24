@@ -43,8 +43,8 @@ impl QuotaService {
             .create_payment_link(
                 PREMIUM_PRICE,
                 "Premium",
-                &format!("{}/payment-test/cancel", self.base_url),
-                &format!("{}/payment-test/return", self.base_url),
+                &format!("{}/quota/payment/cancel", self.base_url),
+                &format!("{}/quota/payment/return", self.base_url),
                 vec![PaymentItem {
                     name: "Premium".to_string(),
                     quantity: 1,

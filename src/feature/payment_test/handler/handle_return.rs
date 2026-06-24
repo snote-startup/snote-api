@@ -18,7 +18,7 @@ pub struct Params {
 
 #[tracing::instrument(err(Debug), skip(state))]
 #[utoipa::path(
-    post,
+    get,
     operation_id = "payment_test::handle_return",
     tag = "Test",
     path = "/payment-test/return",
