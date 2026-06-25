@@ -6,7 +6,7 @@ use axum::{
 };
 use uuid::Uuid;
 
-use crate::{error::Error, feature::auth::extractor::AccountID, shared::ApiState};
+use crate::shared::ApiState;
 
 #[utoipa::path(
     post,
