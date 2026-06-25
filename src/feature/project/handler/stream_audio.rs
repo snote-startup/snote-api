@@ -21,37 +21,9 @@ use crate::{error::Error, feature::auth::extractor::AccountID, shared::ApiState}
             example = "550e8400-e29b-41d4-a716-446655440000"
         )
     ),
-    security(("jwt_token" = [])),
-    responses(
-        (
-            status = 101,
-            description = "Switches to a WebSocket connection for audio streaming"
-        ),
-        (
-            status = 400,
-            description = "Invalid project id or upgrade request",
-            body = Error
-        ),
-        (
-            status = 401,
-            description = "Unauthorized",
-            body = Error
-        ),
-        (
-            status = 404,
-            description = "Project not found",
-            body = Error
-        ),
-        (
-            status = 500,
-            description = "Internal server error",
-            body = Error
-        )
-    )
 )]
 pub async fn stream_audio(
     State(state): State<Arc<ApiState>>,
-    _: AccountID,
     Path(id): Path<Uuid>,
     ws: WebSocketUpgrade,
 ) -> impl IntoResponse {
