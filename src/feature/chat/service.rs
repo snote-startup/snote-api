@@ -167,8 +167,8 @@ impl ChatService {
         let segments = project_svc
             .get_top_k_transcript_segments(
                 db,
-                project_id,
                 account_id,
+                project_id,
                 embedding,
                 self.context_transcript_size,
             )
