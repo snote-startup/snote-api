@@ -65,7 +65,7 @@ impl ApiState {
 
             task_svc: TaskService::new(&config.gemini_api_key)?,
 
-            quota_svc: QuotaService::new(config.base_url.clone()),
+            quota_svc: QuotaService::new(config.base_url.clone(), config.payment_redirect_url),
 
             payment_test_svc: PaymentTestService::new(config.base_url),
         })

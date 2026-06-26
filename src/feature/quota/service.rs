@@ -18,13 +18,15 @@ const PREMIUM_QUOTA: i32 = 20;
 pub struct QuotaService {
     cache: DashMap<i64, Uuid>,
     base_url: String,
+    pub redirect_url: String,
 }
 
 impl QuotaService {
-    pub fn new(base_url: String) -> Self {
+    pub fn new(base_url: String, redirect_url: String) -> Self {
         Self {
             cache: Default::default(),
             base_url,
+            redirect_url,
         }
     }
 

@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use axum::extract::{Query, State};
+use axum::{
+    extract::{Query, State},
+    response::Redirect,
+};
 use serde::Deserialize;
 use utoipa::ToSchema;
 
@@ -23,9 +26,11 @@ pub struct Params {
 pub async fn handle_payment_return(
     State(state): State<Arc<ApiState>>,
     Query(params): Query<Params>,
-) -> Result<()> {
+) -> Result<Redirect> {
     state
         .quota_svc
         .handle_payment_return(&state.db, &state.payos, params.order_code)
-        .await
+        .await?;
+
+    Ok(Redirect::to(&state.quota_svc.redirect_url))
 }
