@@ -1,6 +1,7 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::{future::ready, net::SocketAddr, sync::Arc, time::Duration};
 
 use axum::{Router, routing};
+use metrics_exporter_prometheus::{Matcher, PrometheusBuilder};
 use tokio::net::TcpListener;
 use tower_http::trace::TraceLayer;
 
@@ -10,8 +11,42 @@ use crate::{
     shared::{ApiState, Config, health, middleware},
 };
 
-pub async fn run() -> color_eyre::Result<()> {
-    let config = Config::new()?;
+const EXPONENTIAL_SECONDS: &[f64] = &[
+    0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0,
+];
+
+pub async fn run_metrics(port: u16) -> color_eyre::Result<()> {
+    let recorder_handle = PrometheusBuilder::new()
+        .set_buckets_for_metric(
+            Matcher::Full("http_requests_duration_seconds".to_string()),
+            EXPONENTIAL_SECONDS,
+        )
+        .unwrap()
+        .install_recorder()
+        .unwrap();
+
+    let upkeep_handle = recorder_handle.clone();
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(Duration::from_secs(5)).await;
+            upkeep_handle.run_upkeep();
+        }
+    });
+    let app = Router::new().route(
+        "/metrics",
+        axum::routing::get(move || ready(recorder_handle.render())),
+    );
+
+    let listener = TcpListener::bind(SocketAddr::new([0, 0, 0, 0].into(), port)).await?;
+
+    tracing::info!("Metrics listening on port {}", port);
+
+    axum::serve(listener, app).await?;
+
+    todo!()
+}
+
+async fn run_main(config: Config) -> color_eyre::Result<()> {
     let port = config.port;
     let origins = config.origins.clone();
 
@@ -35,6 +70,17 @@ pub async fn run() -> color_eyre::Result<()> {
     tracing::info!("Listening on port {}", port);
 
     axum::serve(listener, app).await?;
+
+    Ok(())
+}
+
+pub async fn run() -> color_eyre::Result<()> {
+    let config = Config::new()?;
+
+    tokio::try_join! {
+       run_metrics(config.metrics_port),
+       run_main(config)
+    }?;
 
     Ok(())
 }
