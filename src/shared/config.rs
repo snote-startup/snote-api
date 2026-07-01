@@ -8,6 +8,8 @@ pub struct Config {
     pub base_url: String,
     #[serde(default = "default_port")]
     pub port: u16,
+    #[serde(default = "default_metrics_port")]
+    pub metrics_port: u16,
     pub database_url: String,
 
     #[serde(default = "default_origins")]
@@ -60,6 +62,10 @@ fn default_base_url() -> String {
 
 const fn default_port() -> u16 {
     3000
+}
+
+const fn default_metrics_port() -> u16 {
+    3001
 }
 
 fn default_origins() -> String {
