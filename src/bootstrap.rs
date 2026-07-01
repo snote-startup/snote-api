@@ -26,6 +26,7 @@ pub async fn run() -> color_eyre::Result<()> {
         .merge(payment_test::routes())
         .layer(middleware::cors(&origins))
         .layer(TraceLayer::new_for_http())
+        .route_layer(axum::middleware::from_fn(middleware::track_metrics))
         .merge(doc::build())
         .with_state(state);
 
