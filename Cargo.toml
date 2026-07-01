@@ -10,6 +10,7 @@ aws-lc-rs = "1.17.0"
 aws-sdk-s3 = { version = "1.135.0", features = ["behavior-version-latest"] }
 axum = { version = "0.8.9", features = ["macros", "multipart", "ws"] }
 axum-extra = { version = "0.12.6", features = ["typed-header", "cookie"] }
+axum-tracing-opentelemetry = { version = "0.38.0", features = ["tracing_level_info"] }
 base64 = "0.22.1"
 bcrypt = "0.19.1"
 chrono = { version = "0.4.44", features = ["serde"] }
@@ -21,6 +22,9 @@ hex = "0.4.3"
 http = "1.4.1"
 itertools = "0.15.0"
 jsonwebtoken = { version = "10.4.0", features = ["aws_lc_rs"] }
+opentelemetry = "0.32.0"
+opentelemetry-otlp = { version = "0.32.0", features = ["grpc-tonic"] }
+opentelemetry_sdk = "0.32.1"
 pgvector = { version = "0.4.2", features = ["sqlx"] }
 rand = "0.10.1"
 reqwest = { version = "0.13.4", features = ["json"] }
@@ -34,6 +38,7 @@ tokio = { version = "1.52.3", features = ["full"] }
 tower-http = { version = "0.6.11", features = ["cors", "trace"] }
 tracing = "0.1.44"
 tracing-error = "0.2.1"
+tracing-opentelemetry = "0.33.0"
 tracing-subscriber = { version = "0.3.23", features = ["fmt", "chrono", "env-filter"] }
 utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
